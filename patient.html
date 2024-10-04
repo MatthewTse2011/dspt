@@ -27,22 +27,24 @@
                         document.getElementById('treatmentDate').textContent = data.date;
                         document.getElementById('patientNameDisplay').textContent = data.patientName;
                         
-                        let treatmentHTML = '';
-                        if (data.treatment.name === 'Leg Press') {
-                            treatmentHTML = `
-                                <p>Treatment: Leg Press</p>
-                                <ul>
-                                    <li>Sets: ${data.treatment.sets}</li>
-                                    <li>Reps: ${data.treatment.reps}</li>
-                                    <li>Weight: ${data.treatment.weight} kg</li>
-                                </ul>
-                            `;
-                        } else if (data.treatment.name === 'Ultrasound') {
-                            treatmentHTML = `
-                                <p>Treatment: Ultrasound</p>
-                                <p>Region: ${data.treatment.region}</p>
-                            `;
-                        }
+                        let treatmentHTML = '<h2>Treatments:</h2>';
+                        data.treatments.forEach(treatment => {
+                            if (treatment.name === 'Leg Press') {
+                                treatmentHTML += `
+                                    <h3>Leg Press</h3>
+                                    <ul>
+                                        <li>Sets: ${treatment.sets}</li>
+                                        <li>Reps: ${treatment.reps}</li>
+                                        <li>Weight: ${treatment.weight} kg</li>
+                                    </ul>
+                                `;
+                            } else if (treatment.name === 'Ultrasound') {
+                                treatmentHTML += `
+                                    <h3>Ultrasound</h3>
+                                    <p>Region: ${treatment.region}</p>
+                                `;
+                            }
+                        });
                         document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
                     } else {
                         alert('This treatment plan has expired.');
