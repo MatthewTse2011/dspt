@@ -116,7 +116,8 @@
             const encodedData = btoa(data);
             
             // Note the change here: we're pointing to patient.html
-            const dataUrl = `patient.html#${encodedData}`;
+            const baseUrl = "https://matthewtse2011.github.io/dspt/";
+            const dataUrl = `${baseUrl}patient.html#${encodedData}`;
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
             
             qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
