@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator2</h1>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
     <form id="treatmentForm">
@@ -53,14 +53,14 @@
         const scanButton = document.getElementById('scanButton');
 
         //the below for testing the date
-        function getCurrentDate() {
-            // Return a specific date: October 3, 2024
-            return '2024-10-03';
-        }
-
         //function getCurrentDate() {
-        //    return new Date().toISOString().split('T')[0];
+            // Return a specific date: October 3, 2024
+        //    return '2024-10-03';
         //}
+
+        function getCurrentDate() {
+            return new Date().toISOString().split('T')[0];
+        }
 
         currentDateElement.textContent = getCurrentDate();
 
