@@ -52,9 +52,15 @@
         const qrcodeElement = document.getElementById('qrcode');
         const scanButton = document.getElementById('scanButton');
 
+        //the below for testing the date
         function getCurrentDate() {
-            return new Date().toISOString().split('T')[0];
+            // Return a specific date: October 3, 2024
+            return '2024-10-03';
         }
+
+        //function getCurrentDate() {
+        //    return new Date().toISOString().split('T')[0];
+        //}
 
         currentDateElement.textContent = getCurrentDate();
 
