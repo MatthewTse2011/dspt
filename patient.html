@@ -16,13 +16,28 @@
     <div id="treatmentDetails"></div>
 
     <script>
+        function getCurrentDate() {
+            const options = { 
+                timeZone: 'Asia/Hong_Kong',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            };
+            const formatter = new Intl.DateTimeFormat('en-HK', options);
+            const parts = formatter.formatToParts(new Date());
+            const year = parts.find(part => part.type === 'year').value;
+            const month = parts.find(part => part.type === 'month').value;
+            const day = parts.find(part => part.type === 'day').value;
+            return `${year}-${month}-${day}`;
+        }
+
         function displayPatientView() {
             const hash = window.location.hash.substr(1);
             if (hash) {
                 try {
                     const decodedData = atob(hash);
                     const data = JSON.parse(decodedData);
-                    const today = new Date().toISOString().split('T')[0];
+                    const today = getCurrentDate();
                     if (data.date === today) {
                         document.getElementById('treatmentDate').textContent = data.date;
                         document.getElementById('patientNameDisplay').textContent = data.patientName;
