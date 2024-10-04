@@ -23,7 +23,7 @@
         
         <h3>Treatments:</h3>
         <div class="treatment-option">
-            <input type="radio" id="legPress" name="treatment" value="Leg Press">
+            <input type="checkbox" id="legPress" name="treatment" value="Leg Press">
             <label for="legPress">Leg Press</label>
             <div class="treatment-details">
                 <input type="number" id="legPressSets" placeholder="Sets" min="1">
@@ -33,7 +33,7 @@
         </div>
         
         <div class="treatment-option">
-            <input type="radio" id="us" name="treatment" value="Ultrasound">
+            <input type="checkbox" id="us" name="treatment" value="Ultrasound">
             <label for="us">Ultrasound</label>
             <div class="treatment-details">
                 <input type="text" id="usRegion" placeholder="Region">
@@ -60,15 +60,17 @@
 
         function populateForm(data) {
             document.getElementById('patientName').value = data.patientName;
-            if (data.treatment.name === 'Leg Press') {
-                document.getElementById('legPress').checked = true;
-                document.getElementById('legPressSets').value = data.treatment.sets;
-                document.getElementById('legPressReps').value = data.treatment.reps;
-                document.getElementById('legPressWeight').value = data.treatment.weight;
-            } else if (data.treatment.name === 'Ultrasound') {
-                document.getElementById('us').checked = true;
-                document.getElementById('usRegion').value = data.treatment.region;
-            }
+            data.treatments.forEach(treatment => {
+                if (treatment.name === 'Leg Press') {
+                    document.getElementById('legPress').checked = true;
+                    document.getElementById('legPressSets').value = treatment.sets;
+                    document.getElementById('legPressReps').value = treatment.reps;
+                    document.getElementById('legPressWeight').value = treatment.weight;
+                } else if (treatment.name === 'Ultrasound') {
+                    document.getElementById('us').checked = true;
+                    document.getElementById('usRegion').value = treatment.region;
+                }
+            });
         }
 
         scanButton.addEventListener('click', function() {
@@ -93,31 +95,31 @@
             const patientName = document.getElementById('patientName').value;
             const date = getCurrentDate();
             
-            let treatment = {};
-            const selectedTreatment = document.querySelector('input[name="treatment"]:checked');
+            let treatments = [];
             
-            if (selectedTreatment) {
-                if (selectedTreatment.value === 'Leg Press') {
-                    treatment = {
-                        name: 'Leg Press',
-                        sets: document.getElementById('legPressSets').value,
-                        reps: document.getElementById('legPressReps').value,
-                        weight: document.getElementById('legPressWeight').value
-                    };
-                } else if (selectedTreatment.value === 'Ultrasound') {
-                    treatment = {
-                        name: 'Ultrasound',
-                        region: document.getElementById('usRegion').value
-                    };
-                }
+            if (document.getElementById('legPress').checked) {
+                treatments.push({
+                    name: 'Leg Press',
+                    sets: document.getElementById('legPressSets').value,
+                    reps: document.getElementById('legPressReps').value,
+                    weight: document.getElementById('legPressWeight').value
+                });
             }
             
-            const data = JSON.stringify({patientName, treatment, date});
+            if (document.getElementById('us').checked) {
+                treatments.push({
+                    name: 'Ultrasound',
+                    region: document.getElementById('usRegion').value
+                });
+            }
+            
+            const data = JSON.stringify({patientName, treatments, date});
             const encodedData = btoa(data);
             
-            // Note the change here: we're pointing to patient.html
+            // Update this line with your GitHub Pages URL
             const baseUrl = "https://matthewtse2011.github.io/dspt/";
             const dataUrl = `${baseUrl}patient.html#${encodedData}`;
+            
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
             
             qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
