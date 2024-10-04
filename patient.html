@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Treatment Information</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Patient Treatment Information</h1>
+    <p>Date: <span id="treatmentDate"></span></p>
+    <p>Patient Name: <span id="patientNameDisplay"></span></p>
+    <h2>Treatment:</h2>
+    <div id="treatmentDetails"></div>
+
+    <script>
+        function displayPatientView() {
+            const hash = window.location.hash.substr(1);
+            if (hash) {
+                try {
+                    const decodedData = atob(hash);
+                    const data = JSON.parse(decodedData);
+                    const today = new Date().toISOString().split('T')[0];
+                    if (data.date === today) {
+                        document.getElementById('treatmentDate').textContent = data.date;
+                        document.getElementById('patientNameDisplay').textContent = data.patientName;
+                        
+                        let treatmentHTML = '';
+                        if (data.treatment.name === 'Leg Press') {
+                            treatmentHTML = `
+                                <p>Treatment: Leg Press</p>
+                                <ul>
+                                    <li>Sets: ${data.treatment.sets}</li>
+                                    <li>Reps: ${data.treatment.reps}</li>
+                                    <li>Weight: ${data.treatment.weight} kg</li>
+                                </ul>
+                            `;
+                        } else if (data.treatment.name === 'Ultrasound') {
+                            treatmentHTML = `
+                                <p>Treatment: Ultrasound</p>
+                                <p>Region: ${data.treatment.region}</p>
+                            `;
+                        }
+                        document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
+                    } else {
+                        alert('This treatment plan has expired.');
+                    }
+                } catch (e) {
+                    console.error("Failed to decode or parse data:", e);
+                    alert('Invalid QR code data.');
+                }
+            } else {
+                alert('No treatment data found.');
+            }
+        }
+
+        window.onload = displayPatientView;
+    </script>
+</body>
+</html>
