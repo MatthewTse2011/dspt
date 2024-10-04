@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physiotherapist Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        #qrcode img { display: block; margin: 20px 0; }
+        .treatment-option { margin-bottom: 10px; }
+        .treatment-details { margin-left: 25px; }
+        .treatment-details input[type="number"] { width: 50px; }
+        #scanButton { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
+    <p>Today's Date: <span id="currentDate"></span></p>
+    <button id="scanButton">Scan Previous QR Code</button>
+    <form id="treatmentForm">
+        <label for="patientName">Patient Name:</label>
+        <input type="text" id="patientName" required><br><br>
+        
+        <h3>Treatments:</h3>
+        <div class="treatment-option">
+            <input type="radio" id="legPress" name="treatment" value="Leg Press">
+            <label for="legPress">Leg Press</label>
+            <div class="treatment-details">
+                <input type="number" id="legPressSets" placeholder="Sets" min="1">
+                <input type="number" id="legPressReps" placeholder="Reps" min="1">
+                <input type="number" id="legPressWeight" placeholder="Weight" min="0"> kg
+            </div>
+        </div>
+        
+        <div class="treatment-option">
+            <input type="radio" id="us" name="treatment" value="Ultrasound">
+            <label for="us">Ultrasound</label>
+            <div class="treatment-details">
+                <input type="text" id="usRegion" placeholder="Region">
+            </div>
+        </div>
+        
+        <br>
+        <button type="submit">Generate QR Code</button>
+    </form>
+    <div id="qrcode"></div>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        const currentDateElement = document.getElementById('currentDate');
+        const treatmentForm = document.getElementById('treatmentForm');
+        const qrcodeElement = document.getElementById('qrcode');
+        const scanButton = document.getElementById('scanButton');
+
+        function getCurrentDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        currentDateElement.textContent = getCurrentDate();
+
+        function populateForm(data) {
+            document.getElementById('patientName').value = data.patientName;
+            if (data.treatment.name === 'Leg Press') {
+                document.getElementById('legPress').checked = true;
+                document.getElementById('legPressSets').value = data.treatment.sets;
+                document.getElementById('legPressReps').value = data.treatment.reps;
+                document.getElementById('legPressWeight').value = data.treatment.weight;
+            } else if (data.treatment.name === 'Ultrasound') {
+                document.getElementById('us').checked = true;
+                document.getElementById('usRegion').value = data.treatment.region;
+            }
+        }
+
+        scanButton.addEventListener('click', function() {
+            const html5QrCode = new Html5Qrcode("reader");
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                html5QrCode.stop().then((ignore) => {
+                    const hash = new URL(decodedText).hash.substr(1);
+                    const decodedData = atob(hash);
+                    const data = JSON.parse(decodedData);
+                    populateForm(data);
+                }).catch((err) => {
+                    console.log(err);
+                });
+            };
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+        });
+
+        treatmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const patientName = document.getElementById('patientName').value;
+            const date = getCurrentDate();
+            
+            let treatment = {};
+            const selectedTreatment = document.querySelector('input[name="treatment"]:checked');
+            
+            if (selectedTreatment) {
+                if (selectedTreatment.value === 'Leg Press') {
+                    treatment = {
+                        name: 'Leg Press',
+                        sets: document.getElementById('legPressSets').value,
+                        reps: document.getElementById('legPressReps').value,
+                        weight: document.getElementById('legPressWeight').value
+                    };
+                } else if (selectedTreatment.value === 'Ultrasound') {
+                    treatment = {
+                        name: 'Ultrasound',
+                        region: document.getElementById('usRegion').value
+                    };
+                }
+            }
+            
+            const data = JSON.stringify({patientName, treatment, date});
+            const encodedData = btoa(data);
+            
+            // Note the change here: we're pointing to patient.html
+            const dataUrl = `${window.location.origin}/patient.html#${encodedData}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
+            
+            qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
+        });
+    </script>
+</body>
+</html>
