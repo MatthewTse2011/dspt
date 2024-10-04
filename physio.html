@@ -14,13 +14,10 @@
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator</h1>
+    <h1>Physiotherapy Treatment QR Code Generator2</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
-    <div id="readerContainer" style="display: none;">
-        <div id="reader" style="width: 300px; height: 300px;"></div>
-        <button id="cancelScan">Cancel</button>
-    </div>
+    <div id="reader" style="width: 300px; height: 300px;"></div>
     <form id="treatmentForm">
         <label for="patientName">Patient Name:</label>
         <input type="text" id="patientName" required><br><br>
@@ -55,7 +52,6 @@
         const treatmentForm = document.getElementById('treatmentForm');
         const qrcodeElement = document.getElementById('qrcode');
         const scanButton = document.getElementById('scanButton');
-        const readerDiv = document.getElementById('reader');
 
         //the below for testing the date
         //function getCurrentDate() {
@@ -85,9 +81,6 @@
         }
 
         scanButton.addEventListener('click', function() {
-            // Show the reader div
-            readerDiv.style.display = 'block';
-
             const html5QrCode = new Html5Qrcode("reader");
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
                 html5QrCode.stop().then((ignore) => {
@@ -95,55 +88,13 @@
                     const decodedData = atob(hash);
                     const data = JSON.parse(decodedData);
                     populateForm(data);
-                    // Hide the reader div after successful scan
-                    readerDiv.style.display = 'none';
                 }).catch((err) => {
                     console.log(err);
                 });
             };
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
-            // Check if we're running in iOS
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-            if (isIOS) {
-                // For iOS, we'll use the rear camera
-                html5QrCode.start({ facingMode: { exact: "environment" } }, config, qrCodeSuccessCallback)
-                    .catch((err) => {
-                        console.error("Failed to start scanner", err);
-                        alert("Failed to start camera. Please check your camera permissions.");
-                        // Hide the reader div if there's an error
-                        readerDiv.style.display = 'none';
-                    });
-            } else {
-                // For other devices, we'll use the default (usually rear camera on mobile)
-                html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-                    .catch((err) => {
-                        console.error("Failed to start scanner", err);
-                        alert("Failed to start camera. Please check your camera permissions.");
-                        // Hide the reader div if there's an error
-                        readerDiv.style.display = 'none';
-                    });
-            }
+            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
         });
-
-        const cancelScanButton = document.getElementById('cancelScan');
-        const readerContainer = document.getElementById('readerContainer');
-
-        cancelScanButton.addEventListener('click', function() {
-            html5QrCode.stop().then((ignore) => {
-                readerContainer.style.display = 'none';
-            }).catch((err) => {
-                console.log(err);
-            });
-        });
-
-        // In the scan button click handler, change:
-        readerDiv.style.display = 'block';
-        // to:
-        readerContainer.style.display = 'block';
-
-
 
         treatmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
