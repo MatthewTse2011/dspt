@@ -45,7 +45,7 @@
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator1</h1>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
     <div id="readerContainer" style="display: none;">
@@ -84,197 +84,198 @@
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
-        const currentDateElement = document.getElementById('currentDate');
-        const treatmentForm = document.getElementById('treatmentForm');
-        const qrcodeElement = document.getElementById('qrcode');
-        const scanButton = document.getElementById('scanButton');
-        const readerContainer = document.getElementById('readerContainer');
-        let html5QrCode;
+    const currentDateElement = document.getElementById('currentDate');
+    const treatmentForm = document.getElementById('treatmentForm');
+    const qrcodeElement = document.getElementById('qrcode');
+    const scanButton = document.getElementById('scanButton');
+    const readerContainer = document.getElementById('readerContainer');
+    let html5QrCode;
 
+    function getCurrentDate() {
+        const options = {
+            timeZone: 'Asia/Hong_Kong',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        };
+        const formatter = new Intl.DateTimeFormat('en-HK', options);
+        const parts = formatter.formatToParts(new Date());
+        const year = parts.find(part => part.type === 'year').value;
+        const month = parts.find(part => part.type === 'month').value;
+        const day = parts.find(part => part.type === 'day').value;
+        return `${year}-${month}-${day}`;
+    }
 
-        //the below for testing the date
-        //function getCurrentDate() {
-            // Return a specific date: October 3, 2024
-        //    return '2024-10-03';
-        //}
+    currentDateElement.textContent = getCurrentDate();
 
-        //function getCurrentDate() {
-        //    return new Date().toISOString().split('T')[0];
-        //}
+    function populateForm(data) {
+        document.getElementById('patientName').value = data.patientName;
+        data.treatments.forEach(treatment => {
+            if (treatment.name === 'Leg Press') {
+                document.getElementById('legPress').checked = true;
+                document.getElementById('legPressSets').value = treatment.sets;
+                document.getElementById('legPressReps').value = treatment.reps;
+                document.getElementById('legPressWeight').value = treatment.weight;
+            } else if (treatment.name === 'Ultrasound') {
+                document.getElementById('us').checked = true;
+                document.getElementById('usRegion').value = treatment.region;
+            }
+        });
+    }
 
-        function getCurrentDate() {
-            const options = { 
-                timeZone: 'Asia/Hong_Kong',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            };
-            const formatter = new Intl.DateTimeFormat('en-HK', options);
-            const parts = formatter.formatToParts(new Date());
-            const year = parts.find(part => part.type === 'year').value;
-            const month = parts.find(part => part.type === 'month').value;
-            const day = parts.find(part => part.type === 'day').value;
-            return `${year}-${month}-${day}`;
-        }
+    scanButton.addEventListener('click', function() {
+        readerContainer.style.display = 'block';
+        html5QrCode = new Html5Qrcode("reader");
 
-        currentDateElement.textContent = getCurrentDate();
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            const readerElement = document.getElementById('reader');
+            readerElement.style.border = '5px solid green';
+            setTimeout(() => {
+                readerElement.style.border = 'none';
+            }, 1000);
 
-        function populateForm(data) {
-            document.getElementById('patientName').value = data.patientName;
-            data.treatments.forEach(treatment => {
-                if (treatment.name === 'Leg Press') {
-                    document.getElementById('legPress').checked = true;
-                    document.getElementById('legPressSets').value = treatment.sets;
-                    document.getElementById('legPressReps').value = treatment.reps;
-                    document.getElementById('legPressWeight').value = treatment.weight;
-                } else if (treatment.name === 'Ultrasound') {
-                    document.getElementById('us').checked = true;
-                    document.getElementById('usRegion').value = treatment.region;
+            html5QrCode.stop().then((ignore) => {
+                const hash = new URL(decodedText).hash.substr(1);
+                const decodedData = atob(hash);
+                const data = JSON.parse(decodedData);
+                populateForm(data);
+                readerContainer.style.display = 'none';
+            }).catch((err) => {
+                console.log(err);
+            });
+        };
+
+        const config = {
+            fps: 30,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+            disableFlip: false,
+            formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+        };
+
+        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+            .then(() => {
+                console.log("QR Code scanning started");
+                setupFocusButton();
+                improveAutofocus();
+            })
+            .catch((err) => {
+                console.error("Failed to start scanner", err);
+                if (err.name === 'NotAllowedError') {
+                    alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
+                } else if (err.name === 'NotFoundError') {
+                    alert("No camera found on your device.");
+                } else {
+                    alert("Failed to start camera. Error: " + err.message);
                 }
+                readerContainer.style.display = 'none';
+            });
+    });
+
+    function setupFocusButton() {
+        const reader = document.getElementById('reader');
+        const focusButton = document.createElement('button');
+        focusButton.textContent = 'Focus';
+        focusButton.style.position = 'absolute';
+        focusButton.style.bottom = '10px';
+        focusButton.style.left = '50%';
+        focusButton.style.transform = 'translateX(-50%)';
+        focusButton.style.zIndex = '1000';
+        reader.appendChild(focusButton);
+
+        focusButton.addEventListener('click', function() {
+            applyFocus();
+        });
+    }
+
+    function applyFocus() {
+        const videoElement = document.querySelector('#reader video');
+        if (videoElement) {
+            const track = videoElement.srcObject.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            if (capabilities.focusMode) {
+                track.applyConstraints({ advanced: [{ focusMode: "continuous" }] })
+                    .then(() => {
+                        console.log("Focus applied successfully");
+                        provideVisualFeedback();
+                    })
+                    .catch(error => console.error("Could not set focus: ", error));
+            } else {
+                console.log("Focus mode not supported");
+            }
+        } else {
+            console.log("Video element not found");
+        }
+    }
+
+    function improveAutofocus() {
+        const videoElement = document.querySelector('#reader video');
+        if (videoElement) {
+            const track = videoElement.srcObject.getVideoTracks()[0];
+            track.applyConstraints({
+                advanced: [
+                    { autoFocus: "continuous" },
+                    { focusMode: "continuous" }
+                ]
+            }).then(() => {
+                console.log("Autofocus settings applied");
+            }).catch(error => {
+                console.error("Could not apply autofocus settings:", error);
+            });
+        }
+    }
+
+    function provideVisualFeedback() {
+        const reader = document.getElementById('reader');
+        reader.style.boxShadow = '0 0 0 3px yellow';
+        setTimeout(() => {
+            reader.style.boxShadow = 'none';
+        }, 500);
+    }
+
+    document.getElementById('cancelScan').addEventListener('click', function() {
+        if (html5QrCode) {
+            html5QrCode.stop().then((ignore) => {
+                console.log("QR Code scanning stopped.");
+                readerContainer.style.display = 'none';
+                html5QrCode.clear();
+            }).catch((err) => {
+                console.log("Failed to stop QR Code scanning.", err);
+            });
+        } else {
+            readerContainer.style.display = 'none';
+        }
+    });
+
+    treatmentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const patientName = document.getElementById('patientName').value;
+        const date = getCurrentDate();
+        let treatments = [];
+
+        if (document.getElementById('legPress').checked) {
+            treatments.push({
+                name: 'Leg Press',
+                sets: document.getElementById('legPressSets').value,
+                reps: document.getElementById('legPressReps').value,
+                weight: document.getElementById('legPressWeight').value
             });
         }
 
-        scanButton.addEventListener('click', function() {
-            readerContainer.style.display = 'block';
-            html5QrCode = new Html5Qrcode("reader");
-            
-            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                // Provide visual feedback
-                const readerElement = document.getElementById('reader');
-                readerElement.style.border = '5px solid green';
-                setTimeout(() => {
-                    readerElement.style.border = 'none';
-                }, 1000);
-
-                html5QrCode.stop().then((ignore) => {
-                    const hash = new URL(decodedText).hash.substr(1);
-                    const decodedData = atob(hash);
-                    const data = JSON.parse(decodedData);
-                    populateForm(data);
-                    readerContainer.style.display = 'none';
-                }).catch((err) => {
-                    console.log(err);
-                });
-            };
-
-            const config = {
-                fps: 30,
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0,
-                disableFlip: false,
-                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
-            };
-
-            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-                .then(() => {
-                    console.log("QR Code scanning started");
-                    setupTapToFocus();
-                })
-                .catch((err) => {
-                    console.error("Failed to start scanner", err);
-                    if (err.name === 'NotAllowedError') {
-                        alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
-                    } else if (err.name === 'NotFoundError') {
-                        alert("No camera found on your device.");
-                    } else {
-                        alert("Failed to start camera. Error: " + err.message);
-                    }
-                    readerContainer.style.display = 'none';
-                });
-        });
-
-        function setupTapToFocus() {
-            setTimeout(() => {
-                const reader = document.getElementById('reader');
-                reader.addEventListener('click', function(event) {
-                    if (html5QrCode) {
-                        const videoElement = reader.querySelector('video');
-                        if (videoElement) {
-                            const track = videoElement.srcObject.getVideoTracks()[0];
-                            const capabilities = track.getCapabilities();
-                            if (capabilities.focusMode && capabilities.focusMode.includes('manual')) {
-                                track.applyConstraints({ advanced: [{ focusMode: "manual" }] })
-                                    .then(() => {
-                                        const rect = reader.getBoundingClientRect();
-                                        const x = event.clientX - rect.left;
-                                        const y = event.clientY - rect.top;
-                                        const focusPoint = {
-                                            x: x / rect.width,
-                                            y: y / rect.height
-                                        };
-                                        return track.applyConstraints({ advanced: [{ focusPoint: focusPoint }] });
-                                    })
-                                    .then(() => {
-                                        console.log("Focus applied successfully");
-                                        // Visual feedback
-                                        reader.classList.add('focusing');
-                                        setTimeout(() => {
-                                            reader.classList.remove('focusing');
-                                        }, 300);
-                                    })
-                                    .catch(error => console.error("Could not set focus: ", error));
-                            } else {
-                                console.log("Manual focus not supported");
-                            }
-                        } else {
-                            console.log("Video element not found");
-                        }
-                    } else {
-                        console.log("QR scanner not initialized");
-                    }
-                });
-            }, 1000); // Wait for 1 second before setting up tap-to-focus
+        if (document.getElementById('us').checked) {
+            treatments.push({
+                name: 'Ultrasound',
+                region: document.getElementById('usRegion').value
+            });
         }
 
-        document.getElementById('cancelScan').addEventListener('click', function() {
-            if (html5QrCode) {
-                html5QrCode.stop().then((ignore) => {
-                    console.log("QR Code scanning stopped.");
-                    readerContainer.style.display = 'none';
-                    html5QrCode.clear();
-                }).catch((err) => {
-                    console.log("Failed to stop QR Code scanning.", err);
-                });
-            } else {
-                readerContainer.style.display = 'none';
-            }
-        });
-
-        treatmentForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const patientName = document.getElementById('patientName').value;
-            const date = getCurrentDate();
-            
-            let treatments = [];
-            
-            if (document.getElementById('legPress').checked) {
-                treatments.push({
-                    name: 'Leg Press',
-                    sets: document.getElementById('legPressSets').value,
-                    reps: document.getElementById('legPressReps').value,
-                    weight: document.getElementById('legPressWeight').value
-                });
-            }
-            
-            if (document.getElementById('us').checked) {
-                treatments.push({
-                    name: 'Ultrasound',
-                    region: document.getElementById('usRegion').value
-                });
-            }
-            
-            const data = JSON.stringify({patientName, treatments, date});
-            const encodedData = btoa(data);
-            
-            // Update this line with your GitHub Pages URL
-            const baseUrl = "https://matthewtse2011.github.io/dspt/";
-            const dataUrl = `${baseUrl}patient.html#${encodedData}`;
-            
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
-            
-            qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
-        });
+        const data = JSON.stringify({patientName, treatments, date});
+        const encodedData = btoa(data);
+        const baseUrl = "https://matthewtse2011.github.io/dspt/";
+        const dataUrl = `${baseUrl}patient.html#${encodedData}`;
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
+        qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
+    });
     </script>
 </body>
 </html>
