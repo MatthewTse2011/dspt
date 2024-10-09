@@ -35,23 +35,10 @@
         #reader__dashboard_section_swaplink {
             display: none !important;
         }
-        #reader::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border: 2px solid transparent;
-            transition: border-color 0.3s;
-        }
-        #reader.focusing::before {
-            border-color: yellow;
-        }
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator1</h1>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
     <div id="readerContainer" style="display: none;">
@@ -89,204 +76,201 @@
     
 
     <script src="https://unpkg.com/html5-qrcode"></script>
-<script>
-const currentDateElement = document.getElementById('currentDate');
-const treatmentForm = document.getElementById('treatmentForm');
-const qrcodeElement = document.getElementById('qrcode');
-const scanButton = document.getElementById('scanButton');
-const readerContainer = document.getElementById('readerContainer');
-let html5QrCode;
+    <script>
+    const currentDateElement = document.getElementById('currentDate');
+    const treatmentForm = document.getElementById('treatmentForm');
+    const qrcodeElement = document.getElementById('qrcode');
+    const scanButton = document.getElementById('scanButton');
+    const readerContainer = document.getElementById('readerContainer');
+    let html5QrCode;
 
-function getCurrentDate() {
-    const options = {
-        timeZone: 'Asia/Hong_Kong',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    };
-    const formatter = new Intl.DateTimeFormat('en-HK', options);
-    const parts = formatter.formatToParts(new Date());
-    const year = parts.find(part => part.type === 'year').value;
-    const month = parts.find(part => part.type === 'month').value;
-    const day = parts.find(part => part.type === 'day').value;
-    return `${year}-${month}-${day}`;
-}
+    function getCurrentDate() {
+        const options = {
+            timeZone: 'Asia/Hong_Kong',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        };
+        const formatter = new Intl.DateTimeFormat('en-HK', options);
+        const parts = formatter.formatToParts(new Date());
+        const year = parts.find(part => part.type === 'year').value;
+        const month = parts.find(part => part.type === 'month').value;
+        const day = parts.find(part => part.type === 'day').value;
+        return `${year}-${month}-${day}`;
+    }
 
-currentDateElement.textContent = getCurrentDate();
+    currentDateElement.textContent = getCurrentDate();
 
-function populateForm(data) {
-    document.getElementById('patientName').value = data.patientName;
-    data.treatments.forEach(treatment => {
-        if (treatment.name === 'Leg Press') {
-            document.getElementById('legPress').checked = true;
-            document.getElementById('legPressSets').value = treatment.sets;
-            document.getElementById('legPressReps').value = treatment.reps;
-            document.getElementById('legPressWeight').value = treatment.weight;
-        } else if (treatment.name === 'Ultrasound') {
-            document.getElementById('us').checked = true;
-            document.getElementById('usRegion').value = treatment.region;
+    function populateForm(data) {
+        document.getElementById('patientName').value = data.patientName;
+        data.treatments.forEach(treatment => {
+            if (treatment.name === 'Leg Press') {
+                document.getElementById('legPress').checked = true;
+                document.getElementById('legPressSets').value = treatment.sets;
+                document.getElementById('legPressReps').value = treatment.reps;
+                document.getElementById('legPressWeight').value = treatment.weight;
+            } else if (treatment.name === 'Ultrasound') {
+                document.getElementById('us').checked = true;
+                document.getElementById('usRegion').value = treatment.region;
+            }
+        });
+    }
+
+    scanButton.addEventListener('click', function() {
+        readerContainer.style.display = 'block';
+        html5QrCode = new Html5Qrcode("reader");
+
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            const readerElement = document.getElementById('reader');
+            readerElement.style.border = '5px solid green';
+            
+            setTimeout(() => {
+                html5QrCode.stop().then((ignore) => {
+                    const hash = new URL(decodedText).hash.substr(1);
+                    const decodedData = atob(hash);
+                    const data = JSON.parse(decodedData);
+                    populateForm(data);
+                    readerContainer.style.display = 'none';
+                }).catch((err) => {
+                    console.log(err);
+                });
+                readerElement.style.border = 'none';
+            }, 500); // 500ms delay
+        };
+
+        const config = {
+            fps: 10, // Lowered from 30 to 10
+            qrbox: { width: 150, height: 150 }, // Smaller box size
+            aspectRatio: 1.0,
+            disableFlip: false,
+            formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            },
+            rememberLastUsedCamera: true,
+            supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+            verbose: true // Enable verbose mode for debugging
+        };
+
+        function setupZoom() {
+            const videoElement = document.querySelector('#reader video');
+            if (videoElement) {
+                const track = videoElement.srcObject.getVideoTracks()[0];
+                const capabilities = track.getCapabilities();
+                if (capabilities.zoom) {
+                    const zoomControl = document.createElement('input');
+                    zoomControl.type = 'range';
+                    zoomControl.min = capabilities.zoom.min;
+                    zoomControl.max = capabilities.zoom.max;
+                    zoomControl.step = capabilities.zoom.step;
+                    zoomControl.value = 1;
+                    zoomControl.style.width = '100%';
+                    zoomControl.addEventListener('input', (event) => {
+                        track.applyConstraints({advanced: [{zoom: event.target.value}]});
+                    });
+                    document.getElementById('readerContainer').appendChild(zoomControl);
+                }
+            }
+        }
+
+        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+            .then(() => {
+                console.log("QR Code scanning started");
+                setupCloseUpMode();
+                setupZoom();
+            })
+            .catch((err) => {
+                console.error("Failed to start scanner", err);
+                if (err.name === 'NotAllowedError') {
+                    alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
+                } else if (err.name === 'NotFoundError') {
+                    alert("No camera found on your device.");
+                } else {
+                    alert("Failed to start camera. Error: " + err.message);
+                }
+                readerContainer.style.display = 'none';
+            });
+
+        // Add this function to handle QR code scanning errors
+        html5QrCode.getState().then((state) => {
+            if (state === Html5QrcodeScannerState.NOT_STARTED) {
+                console.log("Scanner is not started.");
+            } else if (state === Html5QrcodeScannerState.SCANNING) {
+                console.log("Scanner is scanning.");
+            } else if (state === Html5QrcodeScannerState.PAUSED) {
+                console.log("Scanner is paused.");
+            }
+        }).catch((err) => {
+            console.error("Error getting scanner state:", err);
+        });
+    });
+    
+
+    function setupCloseUpMode() {
+        const videoElement = document.querySelector('#reader video');
+        if (videoElement) {
+            const track = videoElement.srcObject.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            const settings = {};
+
+            if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+                settings.focusMode = 'continuous';
+            }
+
+            track.applyConstraints({ advanced: [settings] })
+                .then(() => {
+                    console.log("Close-up mode applied successfully");
+                    setupTapToFocus(); // Remove this line
+                })
+                .catch(error => console.error("Could not set close-up mode: ", error));
+        } else {
+            console.log("Video element not found");
+        }
+    }
+
+    document.getElementById('cancelScan').addEventListener('click', function() {
+        if (html5QrCode) {
+            html5QrCode.stop().then((ignore) => {
+                console.log("QR Code scanning stopped.");
+                readerContainer.style.display = 'none';
+                html5QrCode.clear();
+            }).catch((err) => {
+                console.log("Failed to stop QR Code scanning.", err);
+            });
+        } else {
+            readerContainer.style.display = 'none';
         }
     });
-}
 
-scanButton.addEventListener('click', function() {
-    readerContainer.style.display = 'block';
-    html5QrCode = new Html5Qrcode("reader");
+    treatmentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const patientName = document.getElementById('patientName').value;
+        const date = getCurrentDate();
+        let treatments = [];
 
-    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-        const readerElement = document.getElementById('reader');
-        readerElement.style.border = '5px solid green';
-        setTimeout(() => {
-            readerElement.style.border = 'none';
-        }, 1000);
-
-        html5QrCode.stop().then((ignore) => {
-            const hash = new URL(decodedText).hash.substr(1);
-            const decodedData = atob(hash);
-            const data = JSON.parse(decodedData);
-            populateForm(data);
-            readerContainer.style.display = 'none';
-        }).catch((err) => {
-            console.log(err);
-        });
-    };
-
-    const config = {
-        fps: 30,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0,
-        disableFlip: false,
-        formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
-        experimentalFeatures: {
-            useBarCodeDetectorIfSupported: true
-        }
-    };
-
-    html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-        .then(() => {
-            console.log("QR Code scanning started");
-            setupCloseUpMode();
-        })
-        .catch((err) => {
-            console.error("Failed to start scanner", err);
-            if (err.name === 'NotAllowedError') {
-                alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
-            } else if (err.name === 'NotFoundError') {
-                alert("No camera found on your device.");
-            } else {
-                alert("Failed to start camera. Error: " + err.message);
-            }
-            readerContainer.style.display = 'none';
-        });
-});
-
-function setupCloseUpMode() {
-    const videoElement = document.querySelector('#reader video');
-    if (videoElement) {
-        const track = videoElement.srcObject.getVideoTracks()[0];
-        const capabilities = track.getCapabilities();
-        const settings = {};
-
-        if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-            settings.focusMode = 'continuous';
+        if (document.getElementById('legPress').checked) {
+            treatments.push({
+                name: 'Leg Press',
+                sets: document.getElementById('legPressSets').value,
+                reps: document.getElementById('legPressReps').value,
+                weight: document.getElementById('legPressWeight').value
+            });
         }
 
-        track.applyConstraints({ advanced: [settings] })
-            .then(() => {
-                console.log("Close-up mode applied successfully");
-                setupTapToFocus();
-            })
-            .catch(error => console.error("Could not set close-up mode: ", error));
-    } else {
-        console.log("Video element not found");
-    }
-}
+        if (document.getElementById('us').checked) {
+            treatments.push({
+                name: 'Ultrasound',
+                region: document.getElementById('usRegion').value
+            });
+        }
 
-function setupTapToFocus() {
-    setTimeout(() => {
-        const reader = document.getElementById('reader');
-        reader.addEventListener('click', function(event) {
-            if (html5QrCode) {
-                const videoElement = reader.querySelector('video');
-                if (videoElement) {
-                    const track = videoElement.srcObject.getVideoTracks()[0];
-                    const capabilities = track.getCapabilities();
-                    if (capabilities.focusMode && capabilities.focusMode.includes('manual')) {
-                        track.applyConstraints({ advanced: [{ focusMode: "manual" }] })
-                            .then(() => {
-                                const rect = reader.getBoundingClientRect();
-                                const x = event.clientX - rect.left;
-                                const y = event.clientY - rect.top;
-                                const focusPoint = {
-                                    x: x / rect.width,
-                                    y: y / rect.height
-                                };
-                                return track.applyConstraints({ advanced: [{ focusPoint: focusPoint }] });
-                            })
-                            .then(() => {
-                                console.log("Focus applied successfully");
-                                reader.classList.add('focusing');
-                                setTimeout(() => {
-                                    reader.classList.remove('focusing');
-                                }, 300);
-                            })
-                            .catch(error => console.error("Could not set focus: ", error));
-                    } else {
-                        console.log("Manual focus not supported");
-                    }
-                } else {
-                    console.log("Video element not found");
-                }
-            } else {
-                console.log("QR scanner not initialized");
-            }
-        });
-    }, 1000);
-}
-
-document.getElementById('cancelScan').addEventListener('click', function() {
-    if (html5QrCode) {
-        html5QrCode.stop().then((ignore) => {
-            console.log("QR Code scanning stopped.");
-            readerContainer.style.display = 'none';
-            html5QrCode.clear();
-        }).catch((err) => {
-            console.log("Failed to stop QR Code scanning.", err);
-        });
-    } else {
-        readerContainer.style.display = 'none';
-    }
-});
-
-treatmentForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const patientName = document.getElementById('patientName').value;
-    const date = getCurrentDate();
-    let treatments = [];
-
-    if (document.getElementById('legPress').checked) {
-        treatments.push({
-            name: 'Leg Press',
-            sets: document.getElementById('legPressSets').value,
-            reps: document.getElementById('legPressReps').value,
-            weight: document.getElementById('legPressWeight').value
-        });
-    }
-
-    if (document.getElementById('us').checked) {
-        treatments.push({
-            name: 'Ultrasound',
-            region: document.getElementById('usRegion').value
-        });
-    }
-
-    const data = JSON.stringify({patientName, treatments, date});
-    const encodedData = btoa(data);
-    const baseUrl = "https://matthewtse2011.github.io/dspt/";
-    const dataUrl = `${baseUrl}patient.html#${encodedData}`;
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
-    qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
-});
-</script>
+        const data = JSON.stringify({patientName, treatments, date});
+        const encodedData = btoa(data);
+        const baseUrl = "https://matthewtse2011.github.io/dspt/";
+        const dataUrl = `${baseUrl}patient.html#${encodedData}`;
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
+        qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
+    });
+    </script>
 </body>
 </html>
