@@ -150,60 +150,59 @@
             overflow: hidden;
         }
 
-        .treatment-details {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
+        .custom-select {
+        position: relative;
+        min-width: 150px;
+        }
 
-.select-wrapper {
-  position: relative;
-  min-width: 150px;
-}
+        .select-selected {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 8px;
+        cursor: pointer;
+        user-select: none;
+        }
 
-select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-  background-repeat: no-repeat;
-  background-position-x: 100%;
-  background-position-y: 5px;
-}
+        .select-selected:after {
+        position: absolute;
+        content: "";
+        top: 14px;
+        right: 10px;
+        width: 0;
+        height: 0;
+        border: 6px solid transparent;
+        border-color: #000 transparent transparent transparent;
+        }
 
-select::-ms-expand {
-  display: none;
-}
+        .select-items {
+        position: absolute;
+        background-color: #fff;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 99;
+        border: 1px solid #ddd;
+        border-top: none;
+        }
 
-input[type="number"] {
-  width: 100px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
+        .select-hide {
+        display: none;
+        }
 
-@media (max-width: 600px) {
-  .treatment-details {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+        .select-items div {
+        padding: 8px;
+        cursor: pointer;
+        user-select: none;
+        }
 
-  .select-wrapper, input[type="number"] {
-    width: 100%;
-  }
-}
+        .select-items div:hover {
+        background-color: #f1f1f1;
+        }
+        
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator</h1>
+    <h1>Physiotherapy Treatment QR Code Generator1</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
 
@@ -225,49 +224,56 @@ input[type="number"] {
             <input type="checkbox" id="ems" name="treatment" value="EMS">
             <label for="ems">EMS</label>
             <div class="treatment-details">
-            <select id="emsRegion">
-                <option value="">Select Region</option>
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-            </select>
-            <select id="emsSubRegion">
-                <option value="">Select Sub-Region</option>
-                <option value="quadriceps">Quadriceps</option>
-                <option value="vmo">VMO</option>
-                <option value="face">Face</option>
-                <option value="calf">Calf</option>
-                <option value="shoulder">Shoulder</option>
-                <option value="waist">Waist</option>
-            </select>
-            <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
-            </div>
-        </div>
-
-        <div class="treatment-option">
-            <input type="checkbox" id="us" name="treatment" value="Ultrasound">
-            <label for="us">Ultrasound (US)</label>
-            <div class="treatment-details">
-              <select id="usRegion">
-                <option value="">Select Region</option>
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-              </select>
-              <select id="usSubRegion">
-                <option value="">Select Sub-Region</option>
-                <option value="neck">Neck</option>
-                <option value="waist">Waist</option>
-                <option value="back">Back</option>
-                <option value="elbow">Elbow</option>
-                <option value="wrist">Wrist</option>
-                <option value="hand">Hand</option>
-                <option value="knee">Knee</option>
-                <option value="ankle">Ankle</option>
-                <option value="foot">Foot</option>
-              </select>
-              <input type="number" id="usIntensity" placeholder="Intensity (w/cm2)" step="0.1" min="0">
-              <input type="number" id="usDuration" placeholder="Duration (mins)" min="1">
+              <div class="custom-select">
+                <div class="select-selected">Select Region</div>
+                <div class="select-items select-hide">
+                  <div>Select Region</div>
+                  <div>Left</div>
+                  <div>Right</div>
+                </div>
+              </div>
+              <div class="custom-select">
+                <div class="select-selected">Select Sub-Region</div>
+                <div class="select-items select-hide">
+                  <div>Select Sub-Region</div>
+                  <div>Quadriceps</div>
+                  <div>VMO</div>
+                  <div>Face</div>
+                  <div>Calf</div>
+                  <div>Shoulder</div>
+                  <div>Waist</div>
+                </div>
+              </div>
+              <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
             </div>
           </div>
+
+          <div class="treatment-option">
+            <input type="checkbox" id="us" name="treatment" value="US">
+            <label for="us">US</label>
+            <div class="treatment-details">
+              <div class="custom-select">
+                <div class="select-selected">Select Region</div>
+                <div class="select-items select-hide">
+                  <div>Select Region</div>
+                  <div>Left</div>
+                  <div>Right</div>
+                </div>
+              </div>
+              <div class="custom-select">
+                <div class="select-selected">Select Sub-Region</div>
+                <div class="select-items select-hide">
+                  <div>Select Sub-Region</div>
+                  <div>Quadriceps</div>
+                  <div>VMO</div>
+                  <div>Face</div>
+                  <div>Calf</div>
+                  <div>Shoulder</div>
+                  <div>Waist</div>
+                </div>
+              </div>
+              <input type="number" id="usDuration" placeholder="Duration (mins)" min="1">
+            </div>
 
 
         
@@ -441,18 +447,56 @@ input[type="number"] {
             });
 
             document.addEventListener('DOMContentLoaded', function() {
-            const selectElements = document.querySelectorAll('select');
+            var customSelects = document.getElementsByClassName("custom-select");
             
-            selectElements.forEach(select => {
-                select.addEventListener('click', function(event) {
-                event.stopPropagation();
+            for (var i = 0; i < customSelects.length; i++) {
+                var selectSelected = customSelects[i].getElementsByClassName("select-selected")[0];
+                selectSelected.addEventListener("click", function(e) {
+                e.stopPropagation();
+                closeAllSelect(this);
+                this.nextSibling.classList.toggle("select-hide");
+                this.classList.toggle("select-arrow-active");
                 });
+            }
 
-                select.addEventListener('change', function(event) {
-                event.stopPropagation();
+            var selectItems = document.getElementsByClassName("select-items");
+            for (var i = 0; i < selectItems.length; i++) {
+                var items = selectItems[i].getElementsByTagName("div");
+                for (var j = 0; j < items.length; j++) {
+                items[j].addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    var selectSelected = this.parentNode.previousSibling;
+                    selectSelected.innerHTML = this.innerHTML;
+                    var sameAsSelected = this.parentNode.getElementsByClassName("same-as-selected");
+                    for (var k = 0; k < sameAsSelected.length; k++) {
+                    sameAsSelected[k].removeAttribute("class");
+                    }
+                    this.setAttribute("class", "same-as-selected");
+                    selectSelected.click();
                 });
+                }
+            }
+
+            document.addEventListener("click", closeAllSelect);
             });
-            });
+
+            function closeAllSelect(elmnt) {
+            var selectItems = document.getElementsByClassName("select-items");
+            var selectSelected = document.getElementsByClassName("select-selected");
+            var arrNo = [];
+            for (var i = 0; i < selectSelected.length; i++) {
+                if (elmnt == selectSelected[i]) {
+                arrNo.push(i)
+                } else {
+                selectSelected[i].classList.remove("select-arrow-active");
+                }
+            }
+            for (var i = 0; i < selectItems.length; i++) {
+                if (arrNo.indexOf(i)) {
+                selectItems[i].classList.add("select-hide");
+                }
+            }
+            }
 
             const data = JSON.stringify({patientName, treatments, date});
             const encodedData = btoa(data);
