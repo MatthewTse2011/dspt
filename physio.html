@@ -149,10 +149,61 @@
         body.scanning {
             overflow: hidden;
         }
+
+        .treatment-details {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.select-wrapper {
+  position: relative;
+  min-width: 150px;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position-x: 100%;
+  background-position-y: 5px;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+input[type="number"] {
+  width: 100px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .treatment-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .select-wrapper, input[type="number"] {
+    width: 100%;
+  }
+}
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator1</h1>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
 
@@ -387,6 +438,20 @@
                         ...details
                     });
                 }
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+            const selectElements = document.querySelectorAll('select');
+            
+            selectElements.forEach(select => {
+                select.addEventListener('click', function(event) {
+                event.stopPropagation();
+                });
+
+                select.addEventListener('change', function(event) {
+                event.stopPropagation();
+                });
+            });
             });
 
             const data = JSON.stringify({patientName, treatments, date});
