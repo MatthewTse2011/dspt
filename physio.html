@@ -29,10 +29,23 @@
         #reader__dashboard_section_swaplink {
             display: none;
         }
+        #reader::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        #reader.focusing::before {
+            border-color: yellow;
+        }
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator1</h1>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
     <div id="readerContainer" style="display: none;">
@@ -77,6 +90,7 @@
         const scanButton = document.getElementById('scanButton');
         const readerContainer = document.getElementById('readerContainer');
         let html5QrCode;
+        let currentStream;
 
         //the below for testing the date
         //function getCurrentDate() {
@@ -152,6 +166,10 @@
             };
 
             html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+                .then((stream) => {
+                    currentStream = stream;
+                    setupTapToFocus();
+                })
                 .catch((err) => {
                     console.error("Failed to start scanner", err);
                     if (err.name === 'NotAllowedError') {
@@ -164,6 +182,38 @@
                     readerContainer.style.display = 'none';
                 });
         });
+
+        function setupTapToFocus() {
+            const reader = document.getElementById('reader');
+            reader.addEventListener('click', function(event) {
+                if (currentStream) {
+                    const track = currentStream.getVideoTracks()[0];
+                    const capabilities = track.getCapabilities();
+                    if (capabilities.focusMode && capabilities.focusMode.includes('manual')) {
+                        track.applyConstraints({ advanced: [{ focusMode: "manual" }] })
+                            .then(() => {
+                                const rect = reader.getBoundingClientRect();
+                                const x = event.clientX - rect.left;
+                                const y = event.clientY - rect.top;
+                                const focusPoint = {
+                                    x: x / rect.width,
+                                    y: y / rect.height
+                                };
+                                track.applyConstraints({ advanced: [{ focusPoint: focusPoint }] });
+                                
+                                // Visual feedback
+                                reader.classList.add('focusing');
+                                setTimeout(() => {
+                                    reader.classList.remove('focusing');
+                                }, 300);
+                            })
+                            .catch(error => console.error("Could not set focus: ", error));
+                    } else {
+                        console.log("Manual focus not supported");
+                    }
+                }
+            });
+        }
 
         document.getElementById('cancelScan').addEventListener('click', function() {
             if (html5QrCode) {
