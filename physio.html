@@ -32,10 +32,13 @@
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator1</h1>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
-    <div id="reader" style="width: 300px; height: 300px;"></div>
+    <div id="readerContainer" style="display: none;">
+        <div id="reader" style="width: 300px; height: 300px; position: relative;"></div>
+        <button id="cancelScan">Cancel</button>
+    </div>
     <form id="treatmentForm">
         <label for="patientName">Patient Name:</label>
         <input type="text" id="patientName" required><br><br>
@@ -62,10 +65,7 @@
         <br>
         <button type="submit">Generate QR Code</button>
     </form>
-    <div id="readerContainer" style="display: none;">
-        <div id="reader" style="width: 300px; height: 300px; position: relative;"></div>
-        <button id="cancelScan">Cancel</button>
-    </div>
+
     <div id="qrcode"></div>
     
 
@@ -75,6 +75,7 @@
         const treatmentForm = document.getElementById('treatmentForm');
         const qrcodeElement = document.getElementById('qrcode');
         const scanButton = document.getElementById('scanButton');
+        const readerContainer = document.getElementById('readerContainer');
 
         //the below for testing the date
         //function getCurrentDate() {
@@ -119,7 +120,9 @@
         }
 
         scanButton.addEventListener('click', function() {
+            readerContainer.style.display = 'block';
             const html5QrCode = new Html5Qrcode("reader");
+            
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
                 // Provide visual feedback
                 const readerElement = document.getElementById('reader');
@@ -139,30 +142,37 @@
                 });
             };
 
-            document.getElementById('scanQR').addEventListener('click', function() {
-                readerContainer.style.display = 'block';
-                const config = { 
-                    fps: 30,  // Increased to 30 as per your request
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0,
-                    disableFlip: false,
-                    formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
-                };
+            const config = {
+                fps: 30,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0,
+                disableFlip: false,
+                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+            };
 
-                html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-                    .catch((err) => {
-                        console.error("Failed to start scanner", err);
-                        if (err.name === 'NotAllowedError') {
-                            alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
-                        } else if (err.name === 'NotFoundError') {
-                            alert("No camera found on your device.");
-                        } else {
-                            alert("Failed to start camera. Error: " + err.message);
-                        }
-                        readerContainer.style.display = 'none';
-                    });
-            });
+            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+                .catch((err) => {
+                    console.error("Failed to start scanner", err);
+                    if (err.name === 'NotAllowedError') {
+                        alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
+                    } else if (err.name === 'NotFoundError') {
+                        alert("No camera found on your device.");
+                    } else {
+                        alert("Failed to start camera. Error: " + err.message);
+                    }
+                    readerContainer.style.display = 'none';
+                });
         });
+
+        document.getElementById('cancelScan').addEventListener('click', function() {
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.stop().then((ignore) => {
+                console.log("QR Code scanning stopped.");
+                readerContainer.style.display = 'none';
+            }).catch((err) => {
+                console.log("Failed to stop QR Code scanning.", err);
+            });
+        }); 
 
         treatmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
