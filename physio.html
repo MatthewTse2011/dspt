@@ -5,35 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Physiotherapist Interface</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        #qrcode img { display: block; margin: 20px 0; }
-        .treatment-option { margin-bottom: 10px; }
-        .treatment-details { margin-left: 25px; }
-        .treatment-details input[type="number"] { width: 50px; }
-        #scanButton { margin-bottom: 20px; }
-        #reader {
-            position: relative;
-            width: 300px;
-            height: 300px;
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
             margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
         }
 
-        #reader video {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover;
+        h1, h3 {
+            color: #333;
         }
 
-        #reader__scan_region {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100% !important;
-            height: 100% !important;
+        #treatmentForm {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        #reader__dashboard_section_swaplink {
-            display: none !important;
+        .treatment-option {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .treatment-option label {
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .treatment-details {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        select {
+            min-width: 150px;
+        }
+
+        input[type="number"] {
+            width: 100px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        #qrcode img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media (max-width: 600px) {
+            .treatment-details {
+            flex-direction: column;
+            align-items: flex-start;
+            }
+
+            select, input[type="number"] {
+            width: 100%;
+            }
         }
     </style>
 </head>
@@ -45,28 +106,62 @@
         <div id="reader" style="width: 300px; height: 300px; position: relative;"></div>
         <button id="cancelScan">Cancel</button>
     </div>
+
+
     <form id="treatmentForm">
         <label for="patientName">Patient Name:</label>
         <input type="text" id="patientName" required><br><br>
         
         <h3>Treatments:</h3>
         <div class="treatment-option">
-            <input type="checkbox" id="legPress" name="treatment" value="Leg Press">
-            <label for="legPress">Leg Press</label>
+            <input type="checkbox" id="ems" name="treatment" value="EMS">
+            <label for="ems">EMS</label>
             <div class="treatment-details">
-                <input type="number" id="legPressSets" placeholder="Sets" min="1">
-                <input type="number" id="legPressReps" placeholder="Reps" min="1">
-                <input type="number" id="legPressWeight" placeholder="Weight" min="0"> kg
+            <select id="emsRegion">
+                <option value="">Select Region</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+            </select>
+            <select id="emsSubRegion">
+                <option value="">Select Sub-Region</option>
+                <option value="quadriceps">Quadriceps</option>
+                <option value="vmo">VMO</option>
+                <option value="face">Face</option>
+                <option value="calf">Calf</option>
+                <option value="shoulder">Shoulder</option>
+                <option value="waist">Waist</option>
+            </select>
+            <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
             </div>
         </div>
-        
+
         <div class="treatment-option">
             <input type="checkbox" id="us" name="treatment" value="Ultrasound">
-            <label for="us">Ultrasound</label>
+            <label for="us">Ultrasound (US)</label>
             <div class="treatment-details">
-                <input type="text" id="usRegion" placeholder="Region">
+              <select id="usRegion">
+                <option value="">Select Region</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select>
+              <select id="usSubRegion">
+                <option value="">Select Sub-Region</option>
+                <option value="neck">Neck</option>
+                <option value="waist">Waist</option>
+                <option value="back">Back</option>
+                <option value="elbow">Elbow</option>
+                <option value="wrist">Wrist</option>
+                <option value="hand">Hand</option>
+                <option value="knee">Knee</option>
+                <option value="ankle">Ankle</option>
+                <option value="foot">Foot</option>
+              </select>
+              <input type="number" id="usIntensity" placeholder="Intensity (w/cm2)" step="0.1" min="0">
+              <input type="number" id="usDuration" placeholder="Duration (mins)" min="1">
             </div>
-        </div>
+          </div>
+
+
         
         <br>
         <button type="submit">Generate QR Code</button>
@@ -103,15 +198,17 @@
 
     function populateForm(data) {
         document.getElementById('patientName').value = data.patientName;
+        
         data.treatments.forEach(treatment => {
-            if (treatment.name === 'Leg Press') {
-                document.getElementById('legPress').checked = true;
-                document.getElementById('legPressSets').value = treatment.sets;
-                document.getElementById('legPressReps').value = treatment.reps;
-                document.getElementById('legPressWeight').value = treatment.weight;
-            } else if (treatment.name === 'Ultrasound') {
-                document.getElementById('us').checked = true;
-                document.getElementById('usRegion').value = treatment.region;
+            const checkbox = document.querySelector(`input[value="${treatment.name}"]`);
+            if (checkbox) {
+            checkbox.checked = true;
+            const details = checkbox.closest('.treatment-option').querySelectorAll('select, input[type="number"]');
+            details.forEach(input => {
+                if (treatment[input.id]) {
+                input.value = treatment[input.id];
+                }
+            });
             }
         });
     }
@@ -209,21 +306,23 @@
         const date = getCurrentDate();
         let treatments = [];
 
-        if (document.getElementById('legPress').checked) {
-            treatments.push({
-                name: 'Leg Press',
-                sets: document.getElementById('legPressSets').value,
-                reps: document.getElementById('legPressReps').value,
-                weight: document.getElementById('legPressWeight').value
+        const treatmentOptions = document.querySelectorAll('.treatment-option');
+        treatmentOptions.forEach(option => {
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            if (checkbox.checked) {
+            const treatmentName = checkbox.value;
+            const details = {};
+            
+            option.querySelectorAll('select, input[type="number"]').forEach(input => {
+                details[input.id] = input.value;
             });
-        }
 
-        if (document.getElementById('us').checked) {
             treatments.push({
-                name: 'Ultrasound',
-                region: document.getElementById('usRegion').value
+                name: treatmentName,
+                ...details
             });
-        }
+            }
+        });
 
         const data = JSON.stringify({patientName, treatments, date});
         const encodedData = btoa(data);
