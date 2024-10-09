@@ -152,7 +152,7 @@
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator</h1>
+    <h1>Physiotherapy Treatment QR Code Generator1</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
 
@@ -229,217 +229,173 @@
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
-    const currentDateElement = document.getElementById('currentDate');
-    const treatmentForm = document.getElementById('treatmentForm');
-    const qrcodeElement = document.getElementById('qrcode');
-    const scanButton = document.getElementById('scanButton');
-    const readerContainer = document.getElementById('readerContainer');
-    let html5QrCode;
+        const currentDateElement = document.getElementById('currentDate');
+        const treatmentForm = document.getElementById('treatmentForm');
+        const qrcodeElement = document.getElementById('qrcode');
+        const scanButton = document.getElementById('scanButton');
+        const readerContainer = document.getElementById('readerContainer');
+        const cancelScanButton = document.getElementById('cancelScan');
+        let html5QrCode;
 
-    const cancelScanButton = document.getElementById('cancelScan');
+        function getCurrentDate() {
+            const options = {
+                timeZone: 'Asia/Hong_Kong',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            };
+            const formatter = new Intl.DateTimeFormat('en-HK', options);
+            const parts = formatter.formatToParts(new Date());
+            const year = parts.find(part => part.type === 'year').value;
+            const month = parts.find(part => part.type === 'month').value;
+            const day = parts.find(part => part.type === 'day').value;
+            return `${year}-${month}-${day}`;
+        }
 
+        currentDateElement.textContent = getCurrentDate();
 
-    scanButton.addEventListener('click', () => {
-    readerContainer.style.display = 'flex';
-    document.body.classList.add('scanning');
-    startScanner();
-    });
+        function startScanner() {
+            readerContainer.style.display = 'flex';
+            document.body.classList.add('scanning');
 
-    cancelScanButton.addEventListener('click', () => {
-    stopScanner();
-    readerContainer.style.display = 'none';
-    document.body.classList.remove('scanning');
-    });
-
-    function startScanner() {
-    html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-        { facingMode: "environment" },
-        {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        },
-        onScanSuccess,
-        onScanFailure
-    ).catch((err) => {
-        console.error(`Unable to start scanning: ${err}`);
-    });
-    }
-
-    function stopScanner() {
-    if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-        html5QrCode.clear();
-        }).catch((err) => {
-        console.error(`Unable to stop scanning: ${err}`);
-        });
-    }
-    }
-
-    function onScanSuccess(decodedText, decodedResult) {
-    // ... (existing code for handling successful scans) ...
-    stopScanner();
-    readerContainer.style.display = 'none';
-    document.body.classList.remove('scanning');
-    }
-
-    function onScanFailure(error) {
-    // Handle scan failure, if needed
-    console.warn(`QR code scanning failed: ${error}`);
-    }
-
-    function getCurrentDate() {
-        const options = {
-            timeZone: 'Asia/Hong_Kong',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        };
-        const formatter = new Intl.DateTimeFormat('en-HK', options);
-        const parts = formatter.formatToParts(new Date());
-        const year = parts.find(part => part.type === 'year').value;
-        const month = parts.find(part => part.type === 'month').value;
-        const day = parts.find(part => part.type === 'day').value;
-        return `${year}-${month}-${day}`;
-    }
-
-    currentDateElement.textContent = getCurrentDate();
-
-    function populateForm(data) {
-        document.getElementById('patientName').value = data.patientName;
-        
-        data.treatments.forEach(treatment => {
-            const checkbox = document.querySelector(`input[value="${treatment.name}"]`);
-            if (checkbox) {
-            checkbox.checked = true;
-            const details = checkbox.closest('.treatment-option').querySelectorAll('select, input[type="number"]');
-            details.forEach(input => {
-                if (treatment[input.id]) {
-                input.value = treatment[input.id];
+            html5QrCode = new Html5Qrcode("reader");
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0,
+                disableFlip: false,
+                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
                 }
-            });
+            };
+
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
+                .then(() => {
+                    console.log("QR Code scanning started");
+                    setupCloseUpMode();
+                })
+                .catch(handleScannerError);
+        }
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    readerContainer.style.display = 'none';
+                    document.body.classList.remove('scanning');
+                    html5QrCode = null;
+                }).catch((err) => {
+                    console.error(`Unable to stop scanning: ${err}`);
+                });
+            } else {
+                readerContainer.style.display = 'none';
+                document.body.classList.remove('scanning');
             }
-        });
-    }
+        }
 
-    scanButton.addEventListener('click', function() {
-        readerContainer.style.display = 'block';
-        html5QrCode = new Html5Qrcode("reader");
-
-        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log(`QR Code detected: ${decodedText}`, decodedResult);
+            
             const readerElement = document.getElementById('reader');
             readerElement.style.border = '5px solid green';
             setTimeout(() => {
                 readerElement.style.border = 'none';
             }, 1000);
 
-            html5QrCode.stop().then((ignore) => {
+            try {
                 const hash = new URL(decodedText).hash.substr(1);
                 const decodedData = atob(hash);
                 const data = JSON.parse(decodedData);
                 populateForm(data);
-                readerContainer.style.display = 'none';
-            }).catch((err) => {
-                console.log(err);
-            });
-        };
-
-        const config = {
-            fps: 30,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-            disableFlip: false,
-            formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
-            experimentalFeatures: {
-                useBarCodeDetectorIfSupported: true
-            }
-        };
-
-        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-            .then(() => {
-                console.log("QR Code scanning started");
-                setupCloseUpMode();
-            })
-            .catch((err) => {
-                console.error("Failed to start scanner", err);
-                if (err.name === 'NotAllowedError') {
-                    alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
-                } else if (err.name === 'NotFoundError') {
-                    alert("No camera found on your device.");
-                } else {
-                    alert("Failed to start camera. Error: " + err.message);
-                }
-                readerContainer.style.display = 'none';
-            });
-    });
-
-    function setupCloseUpMode() {
-        const videoElement = document.querySelector('#reader video');
-        if (videoElement) {
-            const track = videoElement.srcObject.getVideoTracks()[0];
-            const capabilities = track.getCapabilities();
-            const settings = {};
-
-            if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-                settings.focusMode = 'continuous';
+            } catch (error) {
+                console.error("Error processing QR code data:", error);
             }
 
-            track.applyConstraints({ advanced: [settings] })
-                .then(() => {
-                    console.log("Close-up mode applied successfully");
-                    setupTapToFocus(); // Remove this line
-                })
-                .catch(error => console.error("Could not set close-up mode: ", error));
-        } else {
-            console.log("Video element not found");
+            stopScanner();
         }
-    }
 
-    document.getElementById('cancelScan').addEventListener('click', function() {
-        if (html5QrCode) {
-            html5QrCode.stop().then((ignore) => {
-                console.log("QR Code scanning stopped.");
-                readerContainer.style.display = 'none';
-                html5QrCode.clear();
-            }).catch((err) => {
-                console.log("Failed to stop QR Code scanning.", err);
-            });
-        } else {
+        function onScanFailure(error) {
+            console.warn(`QR code scanning failed: ${error}`);
+        }
+
+        function handleScannerError(err) {
+            console.error("Failed to start scanner", err);
+            if (err.name === 'NotAllowedError') {
+                alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
+            } else if (err.name === 'NotFoundError') {
+                alert("No camera found on your device.");
+            } else {
+                alert("Failed to start camera. Error: " + err.message);
+            }
             readerContainer.style.display = 'none';
         }
-    });
 
-    treatmentForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const patientName = document.getElementById('patientName').value;
-        const date = getCurrentDate();
-        let treatments = [];
-
-        const treatmentOptions = document.querySelectorAll('.treatment-option');
-        treatmentOptions.forEach(option => {
-            const checkbox = option.querySelector('input[type="checkbox"]');
-            if (checkbox.checked) {
-            const treatmentName = checkbox.value;
-            const details = {};
-            
-            option.querySelectorAll('select, input[type="number"]').forEach(input => {
-                details[input.id] = input.value;
-            });
-
-            treatments.push({
-                name: treatmentName,
-                ...details
-            });
+        function setupCloseUpMode() {
+            const videoElement = document.querySelector('#reader video');
+            if (videoElement) {
+                const track = videoElement.srcObject.getVideoTracks()[0];
+                const capabilities = track.getCapabilities();
+                const settings = {};
+                if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+                    settings.focusMode = 'continuous';
+                }
+                track.applyConstraints({ advanced: [settings] })
+                    .then(() => console.log("Close-up mode applied successfully"))
+                    .catch(error => console.error("Could not set close-up mode: ", error));
+            } else {
+                console.log("Video element not found");
             }
-        });
+        }
 
-        const data = JSON.stringify({patientName, treatments, date});
-        const encodedData = btoa(data);
-        const baseUrl = "https://matthewtse2011.github.io/dspt/";
-        const dataUrl = `${baseUrl}patient.html#${encodedData}`;
-        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
-        qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
-    });
+        function populateForm(data) {
+            document.getElementById('patientName').value = data.patientName;
+            data.treatments.forEach(treatment => {
+                const checkbox = document.querySelector(`input[value="${treatment.name}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    const details = checkbox.closest('.treatment-option').querySelectorAll('select, input[type="number"]');
+                    details.forEach(input => {
+                        if (treatment[input.id]) {
+                            input.value = treatment[input.id];
+                        }
+                    });
+                }
+            });
+        }
+
+        scanButton.addEventListener('click', startScanner);
+        cancelScanButton.addEventListener('click', stopScanner);
+
+        treatmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const patientName = document.getElementById('patientName').value;
+            const date = getCurrentDate();
+            let treatments = [];
+
+            const treatmentOptions = document.querySelectorAll('.treatment-option');
+            treatmentOptions.forEach(option => {
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    const treatmentName = checkbox.value;
+                    const details = {};
+                    option.querySelectorAll('select, input[type="number"]').forEach(input => {
+                        details[input.id] = input.value;
+                    });
+                    treatments.push({
+                        name: treatmentName,
+                        ...details
+                    });
+                }
+            });
+
+            const data = JSON.stringify({patientName, treatments, date});
+            const encodedData = btoa(data);
+            const baseUrl = "https://matthewtse2011.github.io/dspt/";
+            const dataUrl = `${baseUrl}patient.html#${encodedData}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
+            qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
+        });
     </script>
 </body>
 </html>
