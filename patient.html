@@ -5,75 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Treatment Information</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto;
+            padding: 20px; 
+        }
+        h2, h3 { 
+            color: #333; 
+        }
+        ul { 
+            padding-left: 20px; 
+        }
+        .treatment {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <h1>Patient Treatment Information</h1>
     <p>Date: <span id="treatmentDate"></span></p>
     <p>Patient Name: <span id="patientNameDisplay"></span></p>
-    <h2>Treatment:</h2>
     <div id="treatmentDetails"></div>
 
     <script>
-        function getCurrentDate() {
-            const options = { 
-                timeZone: 'Asia/Hong_Kong',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            };
-            const formatter = new Intl.DateTimeFormat('en-HK', options);
-            const parts = formatter.formatToParts(new Date());
-            const year = parts.find(part => part.type === 'year').value;
-            const month = parts.find(part => part.type === 'month').value;
-            const day = parts.find(part => part.type === 'day').value;
-            return `${year}-${month}-${day}`;
-        }
+    function getCurrentDate() {
+        const options = {
+            timeZone: 'Asia/Hong_Kong',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        };
+        const formatter = new Intl.DateTimeFormat('en-HK', options);
+        const parts = formatter.formatToParts(new Date());
+        const year = parts.find(part => part.type === 'year').value;
+        const month = parts.find(part => part.type === 'month').value;
+        const day = parts.find(part => part.type === 'day').value;
+        return `${year}-${month}-${day}`;
+    }
 
-        function displayPatientView() {
-            const hash = window.location.hash.substr(1);
-            if (hash) {
-                try {
-                    const decodedData = atob(hash);
-                    const data = JSON.parse(decodedData);
-                    const today = getCurrentDate();
-                    if (data.date === today) {
-                        document.getElementById('treatmentDate').textContent = data.date;
-                        document.getElementById('patientNameDisplay').textContent = data.patientName;
+    function displayPatientView() {
+        const hash = window.location.hash.substr(1);
+        if (hash) {
+            try {
+                const decodedData = atob(hash);
+                const data = JSON.parse(decodedData);
+                const today = getCurrentDate();
+
+                if (data.date === today) {
+                    document.getElementById('treatmentDate').textContent = data.date;
+                    document.getElementById('patientNameDisplay').textContent = data.patientName;
+
+                    let treatmentHTML = '<h2>Treatments:</h2>';
+                    data.treatments.forEach(treatment => {
+                        treatmentHTML += `<div class="treatment">`;
+                        treatmentHTML += `<h3>${treatment.name}</h3>`;
+                        treatmentHTML += `<ul>`;
                         
-                        let treatmentHTML = '<h2>Treatments:</h2>';
-                        data.treatments.forEach(treatment => {
-                            if (treatment.name === 'Leg Press') {
-                                treatmentHTML += `
-                                    <h3>Leg Press</h3>
-                                    <ul>
-                                        <li>Sets: ${treatment.sets}</li>
-                                        <li>Reps: ${treatment.reps}</li>
-                                        <li>Weight: ${treatment.weight} kg</li>
-                                    </ul>
-                                `;
-                            } else if (treatment.name === 'Ultrasound') {
-                                treatmentHTML += `
-                                    <h3>Ultrasound</h3>
-                                    <p>Region: ${treatment.region}</p>
-                                `;
+                        for (const [key, value] of Object.entries(treatment)) {
+                            if (key !== 'name') {
+                                treatmentHTML += `<li>${key}: ${value}</li>`;
                             }
-                        });
-                        document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
-                    } else {
-                        alert('This treatment plan has expired.');
-                    }
-                } catch (e) {
-                    console.error("Failed to decode or parse data:", e);
-                    alert('Invalid QR code data.');
-                }
-            } else {
-                alert('No treatment data found.');
-            }
-        }
+                        }
+                        
+                        treatmentHTML += `</ul></div>`;
+                    });
 
-        window.onload = displayPatientView;
+                    document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
+                } else {
+                    alert('This treatment plan has expired.');
+                }
+            } catch (e) {
+                console.error("Failed to decode or parse data:", e);
+                alert('Invalid QR code data.');
+            }
+        } else {
+            alert('No treatment data found.');
+        }
+    }
+
+    window.onload = displayPatientView;
     </script>
 </body>
 </html>
