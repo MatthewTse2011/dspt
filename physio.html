@@ -13,12 +13,17 @@
         #scanButton { margin-bottom: 20px; }
         #reader {
             position: relative;
-            overflow: hidden;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
         }
+
         #reader video {
             width: 100% !important;
-            height: auto !important;
+            height: 100% !important;
+            object-fit: cover;
         }
+
         #reader__scan_region {
             position: absolute;
             top: 0;
@@ -26,8 +31,9 @@
             width: 100% !important;
             height: 100% !important;
         }
+
         #reader__dashboard_section_swaplink {
-            display: none;
+            display: none !important;
         }
         #reader::before {
             content: '';
@@ -45,7 +51,7 @@
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator</h1>
+    <h1>Physiotherapy Treatment QR Code Generator1</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
     <div id="readerContainer" style="display: none;">
@@ -146,82 +152,57 @@
         };
 
         const config = {
-            fps: 30,
+            fps: 10,
             qrbox: { width: 250, height: 250 },
             aspectRatio: 1.0,
             disableFlip: false,
             formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
         };
 
-        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-            .then(() => {
-                console.log("QR Code scanning started");
-                setupFocusButton();
-                improveAutofocus();
-            })
-            .catch((err) => {
-                console.error("Failed to start scanner", err);
-                if (err.name === 'NotAllowedError') {
-                    alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
-                } else if (err.name === 'NotFoundError') {
-                    alert("No camera found on your device.");
-                } else {
-                    alert("Failed to start camera. Error: " + err.message);
-                }
-                readerContainer.style.display = 'none';
-            });
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeSuccessCallback
+        ).then(() => {
+            console.log("QR Code scanning started");
+            setupCloseUpMode();
+        }).catch((err) => {
+            console.error("Failed to start scanner", err);
+            if (err.name === 'NotAllowedError') {
+                alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
+            } else if (err.name === 'NotFoundError') {
+                alert("No camera found on your device.");
+            } else {
+                alert("Failed to start camera. Error: " + err.message);
+            }
+            readerContainer.style.display = 'none';
+        });
     });
 
-    function setupFocusButton() {
-        const reader = document.getElementById('reader');
-        const focusButton = document.createElement('button');
-        focusButton.textContent = 'Focus';
-        focusButton.style.position = 'absolute';
-        focusButton.style.bottom = '10px';
-        focusButton.style.left = '50%';
-        focusButton.style.transform = 'translateX(-50%)';
-        focusButton.style.zIndex = '1000';
-        reader.appendChild(focusButton);
-
-        focusButton.addEventListener('click', function() {
-            applyFocus();
-        });
-    }
-
-    function applyFocus() {
+    function setupCloseUpMode() {
         const videoElement = document.querySelector('#reader video');
         if (videoElement) {
             const track = videoElement.srcObject.getVideoTracks()[0];
             const capabilities = track.getCapabilities();
-            if (capabilities.focusMode) {
-                track.applyConstraints({ advanced: [{ focusMode: "continuous" }] })
-                    .then(() => {
-                        console.log("Focus applied successfully");
-                        provideVisualFeedback();
-                    })
-                    .catch(error => console.error("Could not set focus: ", error));
-            } else {
-                console.log("Focus mode not supported");
+            const settings = {};
+
+            if (capabilities.focusMode && capabilities.focusMode.includes('manual')) {
+                settings.focusMode = 'manual';
+                settings.focusDistance = 20; // Set focus distance to 20cm (close-up)
             }
+
+            if (capabilities.zoom) {
+                settings.zoom = capabilities.zoom.max * 0.5; // Set zoom to 50% of max
+            }
+
+            track.applyConstraints({ advanced: [settings] })
+                .then(() => {
+                    console.log("Close-up mode applied successfully");
+                    provideVisualFeedback();
+                })
+                .catch(error => console.error("Could not set close-up mode: ", error));
         } else {
             console.log("Video element not found");
-        }
-    }
-
-    function improveAutofocus() {
-        const videoElement = document.querySelector('#reader video');
-        if (videoElement) {
-            const track = videoElement.srcObject.getVideoTracks()[0];
-            track.applyConstraints({
-                advanced: [
-                    { autoFocus: "continuous" },
-                    { focusMode: "continuous" }
-                ]
-            }).then(() => {
-                console.log("Autofocus settings applied");
-            }).catch(error => {
-                console.error("Could not apply autofocus settings:", error);
-            });
         }
     }
 
