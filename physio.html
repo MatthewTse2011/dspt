@@ -123,61 +123,36 @@
         const qrCodeSuccessCallback = (decodedText, decodedResult) => {
             const readerElement = document.getElementById('reader');
             readerElement.style.border = '5px solid green';
-            
             setTimeout(() => {
-                html5QrCode.stop().then((ignore) => {
-                    const hash = new URL(decodedText).hash.substr(1);
-                    const decodedData = atob(hash);
-                    const data = JSON.parse(decodedData);
-                    populateForm(data);
-                    readerContainer.style.display = 'none';
-                }).catch((err) => {
-                    console.log(err);
-                });
                 readerElement.style.border = 'none';
-            }, 500); // 500ms delay
+            }, 1000);
+
+            html5QrCode.stop().then((ignore) => {
+                const hash = new URL(decodedText).hash.substr(1);
+                const decodedData = atob(hash);
+                const data = JSON.parse(decodedData);
+                populateForm(data);
+                readerContainer.style.display = 'none';
+            }).catch((err) => {
+                console.log(err);
+            });
         };
 
         const config = {
-            fps: 10, // Lowered from 30 to 10
-            qrbox: { width: 150, height: 150 }, // Smaller box size
+            fps: 30,
+            qrbox: { width: 250, height: 250 },
             aspectRatio: 1.0,
             disableFlip: false,
             formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
             experimentalFeatures: {
                 useBarCodeDetectorIfSupported: true
-            },
-            rememberLastUsedCamera: true,
-            supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-            verbose: true // Enable verbose mode for debugging
-        };
-
-        function setupZoom() {
-            const videoElement = document.querySelector('#reader video');
-            if (videoElement) {
-                const track = videoElement.srcObject.getVideoTracks()[0];
-                const capabilities = track.getCapabilities();
-                if (capabilities.zoom) {
-                    const zoomControl = document.createElement('input');
-                    zoomControl.type = 'range';
-                    zoomControl.min = capabilities.zoom.min;
-                    zoomControl.max = capabilities.zoom.max;
-                    zoomControl.step = capabilities.zoom.step;
-                    zoomControl.value = 1;
-                    zoomControl.style.width = '100%';
-                    zoomControl.addEventListener('input', (event) => {
-                        track.applyConstraints({advanced: [{zoom: event.target.value}]});
-                    });
-                    document.getElementById('readerContainer').appendChild(zoomControl);
-                }
             }
-        }
+        };
 
         html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
             .then(() => {
                 console.log("QR Code scanning started");
                 setupCloseUpMode();
-                setupZoom();
             })
             .catch((err) => {
                 console.error("Failed to start scanner", err);
@@ -190,21 +165,7 @@
                 }
                 readerContainer.style.display = 'none';
             });
-
-        // Add this function to handle QR code scanning errors
-        html5QrCode.getState().then((state) => {
-            if (state === Html5QrcodeScannerState.NOT_STARTED) {
-                console.log("Scanner is not started.");
-            } else if (state === Html5QrcodeScannerState.SCANNING) {
-                console.log("Scanner is scanning.");
-            } else if (state === Html5QrcodeScannerState.PAUSED) {
-                console.log("Scanner is paused.");
-            }
-        }).catch((err) => {
-            console.error("Error getting scanner state:", err);
-        });
     });
-    
 
     function setupCloseUpMode() {
         const videoElement = document.querySelector('#reader video');
