@@ -191,10 +191,6 @@ function setupCloseUpMode() {
             settings.focusMode = 'continuous';
         }
 
-        if (capabilities.zoom) {
-            settings.zoom = capabilities.zoom.max * 0.5;
-        }
-
         track.applyConstraints({ advanced: [settings] })
             .then(() => {
                 console.log("Close-up mode applied successfully");
