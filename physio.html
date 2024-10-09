@@ -11,10 +11,28 @@
         .treatment-details { margin-left: 25px; }
         .treatment-details input[type="number"] { width: 50px; }
         #scanButton { margin-bottom: 20px; }
+        #reader {
+            position: relative;
+            overflow: hidden;
+        }
+        #reader video {
+            width: 100% !important;
+            height: auto !important;
+        }
+        #reader__scan_region {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        #reader__dashboard_section_swaplink {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator</h1>
+    <h1>Physiotherapy Treatment QR Code Generator1</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
     <div id="reader" style="width: 300px; height: 300px;"></div>
@@ -44,7 +62,12 @@
         <br>
         <button type="submit">Generate QR Code</button>
     </form>
+    <div id="readerContainer" style="display: none;">
+        <div id="reader" style="width: 300px; height: 300px; position: relative;"></div>
+        <button id="cancelScan">Cancel</button>
+    </div>
     <div id="qrcode"></div>
+    
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
@@ -98,17 +121,47 @@
         scanButton.addEventListener('click', function() {
             const html5QrCode = new Html5Qrcode("reader");
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                // Provide visual feedback
+                const readerElement = document.getElementById('reader');
+                readerElement.style.border = '5px solid green';
+                setTimeout(() => {
+                    readerElement.style.border = 'none';
+                }, 1000);
+
                 html5QrCode.stop().then((ignore) => {
                     const hash = new URL(decodedText).hash.substr(1);
                     const decodedData = atob(hash);
                     const data = JSON.parse(decodedData);
                     populateForm(data);
+                    readerContainer.style.display = 'none';
                 }).catch((err) => {
                     console.log(err);
                 });
             };
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+
+            document.getElementById('scanQR').addEventListener('click', function() {
+                readerContainer.style.display = 'block';
+                const config = { 
+                    fps: 30,  // Increased to 30 as per your request
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0,
+                    disableFlip: false,
+                    formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+                };
+
+                html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+                    .catch((err) => {
+                        console.error("Failed to start scanner", err);
+                        if (err.name === 'NotAllowedError') {
+                            alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
+                        } else if (err.name === 'NotFoundError') {
+                            alert("No camera found on your device.");
+                        } else {
+                            alert("Failed to start camera. Error: " + err.message);
+                        }
+                        readerContainer.style.display = 'none';
+                    });
+            });
         });
 
         treatmentForm.addEventListener('submit', function(e) {
