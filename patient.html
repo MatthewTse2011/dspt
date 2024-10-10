@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Treatment Information</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px; 
         }
-        h2, h3 {
-            color: #333;
+        h2, h3 { 
+            color: #333; 
         }
-        ul {
-            padding-left: 20px;
+        ul { 
+            padding-left: 20px; 
         }
         .treatment {
             background-color: #f9f9f9;
@@ -26,115 +26,68 @@
     </style>
 </head>
 <body>
-    <h1>Patient Treatment Information (患者治療信息)1</h1>
-    <p>Date (日期): <span id="treatmentDate"></span></p>
-    <p>Patient Name (患者姓名): <span id="patientNameDisplay"></span></p>
+    <h1>Patient Treatment Information</h1>
+    <p>Date: <span id="treatmentDate"></span></p>
+    <p>Patient Name: <span id="patientNameDisplay"></span></p>
     <div id="treatmentDetails"></div>
 
     <script>
-        function getCurrentDate() {
-            const options = {
-                timeZone: 'Asia/Hong_Kong',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            };
-            const formatter = new Intl.DateTimeFormat('en-HK', options);
-            const parts = formatter.formatToParts(new Date());
-            const year = parts.find(part => part.type === 'year').value;
-            const month = parts.find(part => part.type === 'month').value;
-            const day = parts.find(part => part.type === 'day').value;
-            return `${year}-${month}-${day}`;
-        }
-
-        const treatmentTranslations = {
-            'EMS': '電機刺激',
-            'Ultrasound': '超聲波',
-            'region': '區域',
-            'subregion': '子區域',
-            'duration': '持續時間',
-            'intensity': '強度 (w/cm2)',
-            'customRegion': '自定義區域',
-            'pulseMode': '脈衝模式',
-            'mode': '模式',
-            'left': '左',
-            'right': '右',
-            'quadriceps': '四頭肌',
-            'vmo': '內側斜肌',
-            'face': '面部',
-            'calf': '小腿',
-            'shoulder': '肩膀',
-            'waist': '腰部',
-            'neck': '頸部',
-            'back': '背部',
-            'elbow': '手肘',
-            'wrist': '手腕',
-            'hand': '手',
-            'knee': '膝蓋',
-            'ankle': '腳踝',
-            'foot': '腳'
+    function getCurrentDate() {
+        const options = {
+            timeZone: 'Asia/Hong_Kong',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
         };
+        const formatter = new Intl.DateTimeFormat('en-HK', options);
+        const parts = formatter.formatToParts(new Date());
+        const year = parts.find(part => part.type === 'year').value;
+        const month = parts.find(part => part.type === 'month').value;
+        const day = parts.find(part => part.type === 'day').value;
+        return `${year}-${month}-${day}`;
+    }
 
-        function getBilingualLabel(key, value) {
-            let englishLabel = key.charAt(0).toUpperCase() + key.slice(1);
-            let chineseLabel = treatmentTranslations[key] || key;
+    function displayPatientView() {
+        const hash = window.location.hash.substr(1);
+        if (hash) {
+            try {
+                const decodedData = atob(hash);
+                const data = JSON.parse(decodedData);
+                const today = getCurrentDate();
 
-            // Special handling for region and subRegion
-            if (key === 'region' || key === 'subregion') {
-                englishLabel = key === 'subregion' ? 'Sub-Region' : 'Region';
-                chineseLabel = treatmentTranslations[key];
-            }
+                if (data.date === today) {
+                    document.getElementById('treatmentDate').textContent = data.date;
+                    document.getElementById('patientNameDisplay').textContent = data.patientName;
 
-            const englishValue = value;
-            const chineseValue = treatmentTranslations[value] || value;
-
-            // Special handling for duration
-            if (key === 'duration') {
-                englishLabel = 'Duration';  // Set the correct label for "duration"
-                chineseLabel = treatmentTranslations[key];  // Get the Chinese translation for "duration"
-                return `${englishLabel} (${chineseLabel}): ${englishValue} mins (分鐘)`;
-            }
-
-            return `${englishLabel} (${chineseLabel}): ${englishValue}${chineseValue !== value ? ` (${chineseValue})` : ''}`;
-        }
-
-        function displayPatientView() {
-            const hash = window.location.hash.substr(1);
-            if (hash) {
-                try {
-                    const decodedData = atob(hash);
-                    const data = JSON.parse(decodedData);
-                    const today = getCurrentDate();
-                    if (data.date === today) {
-                        document.getElementById('treatmentDate').textContent = data.date;
-                        document.getElementById('patientNameDisplay').textContent = data.patientName;
-
-                        let treatmentHTML = '<h2>Treatments (治療):</h2>';
-                        data.treatments.forEach(treatment => {
-                            treatmentHTML += `<div class="treatment">`;
-                            treatmentHTML += `<h3>${treatment.name} (${treatmentTranslations[treatment.name] || treatment.name})</h3>`;
-                            treatmentHTML += `<ul>`;
-                            for (const [key, value] of Object.entries(treatment)) {
-                                if (key !== 'name' && value !== undefined && value !== '') {
-                                    treatmentHTML += `<li>${getBilingualLabel(key, value)}</li>`;
-                                }
+                    let treatmentHTML = '<h2>Treatments:</h2>';
+                    data.treatments.forEach(treatment => {
+                        treatmentHTML += `<div class="treatment">`;
+                        treatmentHTML += `<h3>${treatment.name}</h3>`;
+                        treatmentHTML += `<ul>`;
+                        
+                        for (const [key, value] of Object.entries(treatment)) {
+                            if (key !== 'name') {
+                                treatmentHTML += `<li>${key}: ${value}</li>`;
                             }
-                            treatmentHTML += `</ul></div>`;
-                        });
-                        document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
-                    } else {
-                        alert('This treatment plan has expired. (此治療計劃已過期。)');
-                    }
-                } catch (e) {
-                    console.error("Failed to decode or parse data:", e);
-                    alert('Invalid QR code data. (二維碼數據無效。)');
-                }
-            } else {
-                alert('No treatment data found. (未找到治療數據。)');
-            }
-        }
+                        }
+                        
+                        treatmentHTML += `</ul></div>`;
+                    });
 
-        window.onload = displayPatientView;
+                    document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
+                } else {
+                    alert('This treatment plan has expired.');
+                }
+            } catch (e) {
+                console.error("Failed to decode or parse data:", e);
+                alert('Invalid QR code data.');
+            }
+        } else {
+            alert('No treatment data found.');
+        }
+    }
+
+    window.onload = displayPatientView;
     </script>
 </body>
 </html>
