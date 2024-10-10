@@ -56,6 +56,7 @@
             'intensity': '強度 (w/cm2)',
             'customRegion': '自定義區域',
             'pulseMode': '脈衝模式',
+            'mode': '模式',
             'left': '左',
             'right': '右',
             'quadriceps': '四頭肌',
@@ -106,7 +107,7 @@
                             treatmentHTML += `<h3>${treatment.name} (${treatmentTranslations[treatment.name] || treatment.name})</h3>`;
                             treatmentHTML += `<ul>`;
                             for (const [key, value] of Object.entries(treatment)) {
-                                if (key !== 'name') {
+                                if (key !== 'name' && value !== undefined && value !== '') {
                                     treatmentHTML += `<li>${getBilingualLabel(key, value)}</li>`;
                                 }
                             }
