@@ -157,7 +157,7 @@
             transition: outline 0.1s ease-out;
         }
 
-        .custom-select:not(:focus),
+            .custom-select:not(:focus),
             .select-selected:not(:focus) {
             outline: none;
         }
@@ -166,7 +166,7 @@
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator1</h1>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
 
@@ -411,42 +411,9 @@
             qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
         });
 
-        // ... (your existing JavaScript code)
+        // ... (keep your existing code)
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var customSelects = document.getElementsByClassName("custom-select");
-            
-            for (var i = 0; i < customSelects.length; i++) {
-                var selectSelected = customSelects[i].getElementsByClassName("select-selected")[0];
-                selectSelected.addEventListener("click", function(e) {
-                e.stopPropagation();
-                closeAllSelect(this);
-                this.nextSibling.classList.toggle("select-hide");
-                this.classList.toggle("select-arrow-active");
-                });
-            }
-
-            var selectItems = document.getElementsByClassName("select-items");
-            for (var i = 0; i < selectItems.length; i++) {
-                var items = selectItems[i].getElementsByTagName("div");
-                for (var j = 0; j < items.length; j++) {
-                items[j].addEventListener("click", function(e) {
-                    e.stopPropagation();
-                    var selectSelected = this.parentNode.previousSibling;
-                    selectSelected.innerHTML = this.innerHTML;
-                    var sameAsSelected = this.parentNode.getElementsByClassName("same-as-selected");
-                    for (var k = 0; k < sameAsSelected.length; k++) {
-                    sameAsSelected[k].removeAttribute("class");
-                    }
-                    this.setAttribute("class", "same-as-selected");
-                    selectSelected.click();
-                });
-                }
-            }
-
-            document.addEventListener("click", closeAllSelect);
-        });
-
+            // Custom select functionality
         function closeAllSelect(elmnt) {
             var selectItems = document.getElementsByClassName("select-items");
             var selectSelected = document.getElementsByClassName("select-selected");
@@ -456,7 +423,7 @@
                 arrNo.push(i)
                 } else {
                 selectSelected[i].classList.remove("select-arrow-active");
-                selectSelected[i].blur(); // Add this line to remove focus
+                selectSelected[i].blur();
                 }
             }
             for (var i = 0; i < selectItems.length; i++) {
@@ -465,6 +432,61 @@
                 }
             }
         }
+
+        // Initialize custom selects
+        function initCustomSelects() {
+            var selectElements = document.getElementsByTagName("select");
+            for (var i = 0; i < selectElements.length; i++) {
+                var selectElement = selectElements[i];
+                var wrapper = document.createElement("div");
+                wrapper.className = "custom-select";
+                selectElement.parentNode.insertBefore(wrapper, selectElement);
+                wrapper.appendChild(selectElement);
+
+                var selectedDiv = document.createElement("div");
+                selectedDiv.className = "select-selected";
+                selectedDiv.innerHTML = selectElement.options[selectElement.selectedIndex].innerHTML;
+                wrapper.appendChild(selectedDiv);
+
+                var optionsDiv = document.createElement("div");
+                optionsDiv.className = "select-items select-hide";
+                for (var j = 0; j < selectElement.length; j++) {
+                var optionDiv = document.createElement("div");
+                optionDiv.innerHTML = selectElement.options[j].innerHTML;
+                optionDiv.addEventListener("click", function(e) {
+                    var select = this.parentNode.parentNode.getElementsByTagName("select")[0];
+                    var selected = this.parentNode.previousSibling;
+                    for (var k = 0; k < select.length; k++) {
+                    if (select.options[k].innerHTML == this.innerHTML) {
+                        select.selectedIndex = k;
+                        selected.innerHTML = this.innerHTML;
+                        var sameAsSelected = this.parentNode.getElementsByClassName("same-as-selected");
+                        for (var l = 0; l < sameAsSelected.length; l++) {
+                        sameAsSelected[l].removeAttribute("class");
+                        }
+                        this.setAttribute("class", "same-as-selected");
+                        break;
+                    }
+                    }
+                    selected.click();
+                });
+                optionsDiv.appendChild(optionDiv);
+                }
+                wrapper.appendChild(optionsDiv);
+
+                selectedDiv.addEventListener("click", function(e) {
+                e.stopPropagation();
+                closeAllSelect(this);
+                this.nextSibling.classList.toggle("select-hide");
+                this.classList.toggle("select-arrow-active");
+                });
+            }
+
+            document.addEventListener("click", closeAllSelect);
+        }
+
+        // Initialize custom selects when the page loads
+        initCustomSelects();
     </script>
 </body>
 </html>
