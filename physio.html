@@ -152,7 +152,7 @@
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator1</h1>
+    <h1>Physiotherapy Treatment QR Code Generator</h1>
     <p>Today's Date: <span id="currentDate"></span></p>
     <button id="scanButton">Scan Previous QR Code</button>
 
@@ -174,12 +174,12 @@
             <input type="checkbox" id="ems" name="treatment" value="EMS">
             <label for="ems">EMS (電機刺激)</label>
             <div class="treatment-details">
-              <select id="emsRegion">
+              <select id="region" class="ems-field">
                 <option value="">Select Region (選擇區域)</option>
                 <option value="left">Left (左)</option>
                 <option value="right">Right (右)</option>
               </select>
-              <select id="emsSubRegion">
+              <select id="subRegion" class="ems-field">
                 <option value="">Select Sub-Region (選擇子區域)</option>
                 <option value="quadriceps">Quadriceps (四頭肌)</option>
                 <option value="vmo">VMO (內側斜肌)</option>
@@ -188,7 +188,7 @@
                 <option value="shoulder">Shoulder (肩膀)</option>
                 <option value="waist">Waist (腰部)</option>
               </select>
-              <input type="number" id="emsDuration" placeholder="Duration (mins) 持續時間（分鐘）" min="1">
+              <input type="number" id="duration" class="ems-field" placeholder="Duration (mins) 持續時間（分鐘）" min="1">
             </div>
           </div>
           
@@ -196,12 +196,12 @@
             <input type="checkbox" id="us" name="treatment" value="Ultrasound">
             <label for="us">Ultrasound (US) (超聲波)</label>
             <div class="treatment-details">
-              <select id="usRegion">
+              <select id="region" class="us-field">
                 <option value="">Select Region (選擇區域)</option>
                 <option value="left">Left (左)</option>
                 <option value="right">Right (右)</option>
               </select>
-              <select id="usSubRegion">
+              <select id="subRegion" class="us-field">
                 <option value="">Select Sub-Region (選擇子區域)</option>
                 <option value="neck">Neck (頸部)</option>
                 <option value="waist">Waist (腰部)</option>
@@ -213,10 +213,10 @@
                 <option value="ankle">Ankle (腳踝)</option>
                 <option value="foot">Foot (腳)</option>
               </select>
-              <input type="number" id="usIntensity" placeholder="Intensity (w/cm2) 強度" step="0.1" min="0">
-              <input type="number" id="usDuration" placeholder="Duration (mins) 持續時間（分鐘）" min="1">
-              <input type="text" id="usCustomRegion" placeholder="Custom Region (自定義區域)">
-              <input type="text" id="usPulseMode" placeholder="Pulse Mode (脈衝模式)">
+              <input type="number" id="intensity" class="us-field" placeholder="Intensity (w/cm2) 強度" step="0.1" min="0">
+              <input type="number" id="duration" class="us-field" placeholder="Duration (mins) 持續時間（分鐘）" min="1">
+              <input type="text" id="customRegion" class="us-field" placeholder="Custom Region (自定義區域)">
+              <input type="text" id="pulseMode" class="us-field" placeholder="Pulse Mode (脈衝模式)">
             </div>
           </div>
 
@@ -382,7 +382,11 @@
                     const details = {};
                     option.querySelectorAll('select, input[type="number"], input[type="text"]').forEach(input => {
                     if (input.value) {  // Only add non-empty values
-                        details[input.id] = input.value;
+                        let key = input.id.replace(/^[a-z]+/, '').toLowerCase();
+                        if (key === 'region' || key === 'subregion') {
+                            key = key.toLowerCase();
+                        }
+                        details[key] = input.value;
                     }
                     });
                     treatments.push({
