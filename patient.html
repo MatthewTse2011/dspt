@@ -50,15 +50,12 @@
         const treatmentTranslations = {
             'EMS': '電機刺激',
             'Ultrasound': '超聲波',
-            'emsRegion': '區域',
-            'emsSubRegion': '子區域',
-            'emsDuration': '持續時間（分鐘）',
-            'usRegion': '區域',
-            'usSubRegion': '子區域',
-            'usIntensity': '強度 (w/cm2)',
-            'usDuration': '持續時間（分鐘）',
-            'usCustomRegion': '自定義區域',
-            'usPulseMode': '脈衝模式',
+            'region': '區域',
+            'subregion': '子區域',
+            'duration': '持續時間（分鐘）',
+            'intensity': '強度 (w/cm2)',
+            'customRegion': '自定義區域',
+            'pulseMode': '脈衝模式',
             'left': '左',
             'right': '右',
             'quadriceps': '四頭肌',
@@ -78,8 +75,15 @@
         };
 
         function getBilingualLabel(key, value) {
-            const englishLabel = key.charAt(0).toUpperCase() + key.slice(1);
-            const chineseLabel = treatmentTranslations[key] || key;
+            let englishLabel = key.charAt(0).toUpperCase() + key.slice(1);
+            let chineseLabel = treatmentTranslations[key] || key;
+
+            // Special handling for region and subRegion
+            if (key === 'region' || key === 'subregion') {
+                englishLabel = key === 'subregion' ? 'Sub-Region' : 'Region';
+                chineseLabel = treatmentTranslations[key];
+            }
+
             const englishValue = value;
             const chineseValue = treatmentTranslations[value] || value;
             return `${englishLabel} (${chineseLabel}): ${englishValue} ${chineseValue !== value ? `(${chineseValue})` : ''}`;
