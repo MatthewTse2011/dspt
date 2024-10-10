@@ -79,21 +79,21 @@
             let englishLabel = key.charAt(0).toUpperCase() + key.slice(1);
             let chineseLabel = treatmentTranslations[key] || key;
 
-            // Special handling for region, subRegion, and duration
+            // Special handling for region and subRegion
             if (key === 'region' || key === 'subregion') {
                 englishLabel = key === 'subregion' ? 'Sub-Region' : 'Region';
                 chineseLabel = treatmentTranslations[key];
-            } else if (key === 'duration') {
-                englishLabel = 'Duration';
-                chineseLabel = treatmentTranslations[key];
-                return `${englishLabel} (${chineseLabel}): ${value} mins (分鐘)`;
             }
 
             const englishValue = value;
             const chineseValue = treatmentTranslations[value] || value;
 
-            return `${englishLabel} (${chineseLabel}): ${englishValue}
-            ${chineseValue !== value ? `(${chineseValue})` : ''}`;
+            // Special handling for duration
+            if (key === 'duration') {
+                return `${englishLabel} (${chineseLabel}): ${englishValue} mins (分鐘)`;
+            }
+
+            return `${englishLabel} (${chineseLabel}): ${englishValue}${chineseValue !== value ? ` (${chineseValue})` : ''}`;
         }
 
         function displayPatientView() {
