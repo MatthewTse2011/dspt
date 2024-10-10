@@ -90,6 +90,8 @@
 
             // Special handling for duration
             if (key === 'duration') {
+                englishLabel = 'Duration';  // Set the correct label for "duration"
+                chineseLabel = treatmentTranslations[key];  // Get the Chinese translation for "duration"
                 return `${englishLabel} (${chineseLabel}): ${englishValue} mins (分鐘)`;
             }
 
