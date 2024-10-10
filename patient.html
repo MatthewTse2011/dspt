@@ -52,7 +52,7 @@
             'Ultrasound': '超聲波',
             'region': '區域',
             'subregion': '子區域',
-            'duration': '持續時間（分鐘）',
+            'duration': '持續時間',
             'intensity': '強度 (w/cm2)',
             'customRegion': '自定義區域',
             'pulseMode': '脈衝模式',
@@ -79,15 +79,21 @@
             let englishLabel = key.charAt(0).toUpperCase() + key.slice(1);
             let chineseLabel = treatmentTranslations[key] || key;
 
-            // Special handling for region and subRegion
+            // Special handling for region, subRegion, and duration
             if (key === 'region' || key === 'subregion') {
                 englishLabel = key === 'subregion' ? 'Sub-Region' : 'Region';
                 chineseLabel = treatmentTranslations[key];
+            } else if (key === 'duration') {
+                englishLabel = 'Duration';
+                chineseLabel = treatmentTranslations[key];
+                return `${englishLabel} (${chineseLabel}): ${value} mins (分鐘)`;
             }
 
             const englishValue = value;
             const chineseValue = treatmentTranslations[value] || value;
-            return `${englishLabel} (${chineseLabel}): ${englishValue} ${chineseValue !== value ? `(${chineseValue})` : ''}`;
+
+            return `${englishLabel} (${chineseLabel}): ${englishValue}
+            ${chineseValue !== value ? `(${chineseValue})` : ''}`;
         }
 
         function displayPatientView() {
