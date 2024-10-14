@@ -117,7 +117,8 @@
 
                             // Iterate through each key-value pair in the treatment, excluding 'region' and 'subregion' since they are combined
                             for (const [key, value] of Object.entries(treatment)) {
-                                if (key !== 'name' && key !== 'region' && key !== 'subregion') {
+                                //if (key !== 'name' && key !== 'region' && key !== 'subregion') {
+                                if (key !== 'name') {
                                     // Translate key and value if available
                                     const translatedKey = treatmentTranslations[key] || key;
                                     const translatedValue = treatmentTranslations[value] || value;
