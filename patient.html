@@ -130,10 +130,11 @@
 
                                     if (key == "usRegion") {
                                         // Combine region and subregion
-                                        treatmentHTML += `<p> hi </p>`;
-                                        treatmentHTML += `<li>區域: ${translatedKey}`;
+                                        treatmentHTML += `<p> bye </p>`;
+                                        treatmentHTML += `<p> ${value}</p>`;
+                                        treatmentHTML += `<li>區域: ${translatedValue}`;
                                     } else if (key == 'usSubRegion') {
-                                        treatmentHTML += `${translatedKey}</li>`;
+                                        treatmentHTML += `${translatedValue}</li>`;
                                     } else {
                                         treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
                                     }
