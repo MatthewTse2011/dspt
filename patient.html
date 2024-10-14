@@ -107,13 +107,13 @@
                             treatmentHTML += `<ul>`;
 
                             // Check if both region and subregion exist
-                            const region = treatment.region ? treatmentTranslations[treatment.region] || treatment.region : '';
-                            const subregion = treatment.subregion ? treatmentTranslations[treatment.subregion] || treatment.subregion : '';
+                            //const region = treatment.region ? treatmentTranslations[treatment.region] || treatment.region : '';
+                            //const subregion = treatment.subregion ? treatmentTranslations[treatment.subregion] || treatment.subregion : '';
 
-                            if (region && subregion) {
+                            //if (region && subregion) {
                                 // Combine region and subregion
-                                treatmentHTML += `<li>區域: ${region}${subregion}</li>`;
-                            }
+                            //    treatmentHTML += `<li>區域: ${region}${subregion}</li>`;
+                            //}
 
                             // Iterate through each key-value pair in the treatment, excluding 'region' and 'subregion' since they are combined
                             for (const [key, value] of Object.entries(treatment)) {
