@@ -127,9 +127,11 @@
 
                                     treatmentHTML += `<li>${region}: ${subregion}</li>`;
 
-                                    if (region && subregion) {
+                                    if (key == 'usRegion') {
                                         // Combine region and subregion
-                                        treatmentHTML += `<li>區域: ${region}${subregion}</li>`;
+                                        treatmentHTML += `<li>區域: ${translatedValue}`;
+                                    } else if (key == 'usSubRegion') {
+                                        treatmentHTML += `${translatedValue}</li>`;
                                     } else {
                                         treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
                                     }
