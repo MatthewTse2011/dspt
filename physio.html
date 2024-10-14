@@ -172,25 +172,26 @@
         <input type="text" id="patientName" required><br><br>
         
         <h3>Treatments:</h3>
+
         <div class="treatment-option">
             <input type="checkbox" id="ems" name="treatment" value="EMS">
-            <label for="ems">EMS</label>
+            <label for="ems">NMES</label>
             <div class="treatment-details">
-            <select id="emsRegion">
-                <option value="">Select Region</option>
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-            </select>
-            <select id="emsSubRegion">
-                <option value="">Select Sub-Region</option>
-                <option value="quadriceps">Quadriceps</option>
-                <option value="vmo">VMO</option>
-                <option value="face">Face</option>
-                <option value="calf">Calf</option>
-                <option value="shoulder">Shoulder</option>
-                <option value="waist">Waist</option>
-            </select>
-            <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
+                <select id="emsRegion">
+                    <option value="">Select Region</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+                <select id="emsSubRegion">
+                    <option value="">Select Sub-Region</option>
+                    <option value="vmo">VMO</option>
+                    <option value="hamstrings">Hamstrings</option>
+                    <option value="shoulder">Shoulder</option>
+                    <option value="face">Face</option>
+                    <option value="calf">Calf</option>
+                    <option value="quadriceps">Quadriceps</option>
+                </select>
+                <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
             </div>
         </div>
 
@@ -206,8 +207,8 @@
               <select id="usSubRegion">
                 <option value="">Select Sub-Region</option>
                 <option value="neck">Neck</option>
-                <option value="waist">Waist</option>
                 <option value="back">Back</option>
+                <option value="shoulder">Shoulder</option>
                 <option value="elbow">Elbow</option>
                 <option value="wrist">Wrist</option>
                 <option value="hand">Hand</option>
@@ -215,12 +216,18 @@
                 <option value="ankle">Ankle</option>
                 <option value="foot">Foot</option>
               </select>
+              <input type="text" id="usCustomRegion" placeholder="Custom Region">
               <input type="number" id="usIntensity" placeholder="Intensity (w/cm2)" step="0.1" min="0">
               <input type="number" id="usDuration" placeholder="Duration (mins)" min="1">
+              <select id="usPulseMode">
+                <option value="">Pulse Mode</option>
+                <option value="50">50%</option>
+                <option value="33">33%</option>
+                <option value="25">25%</option>
+                <option value="20">20%</option>
+              </select>
             </div>
           </div>
-
-
         
         <br>
         <button type="submit">Generate QR Code</button>
