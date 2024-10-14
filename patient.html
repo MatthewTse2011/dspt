@@ -3,252 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physiotherapist Interface</title>
+    <title>Patient Treatment Information</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
             margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
+            padding: 20px; 
         }
-
-        h1, h3 {
-            color: #333;
+        h2, h3 { 
+            color: #333; 
         }
-
-        #treatmentForm {
+        ul { 
+            padding-left: 20px; 
+        }
+        .treatment {
             background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .treatment-option {
-            margin-bottom: 20px;
             padding: 15px;
-            background-color: #fff;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .treatment-option label {
-            font-weight: bold;
-            margin-left: 5px;
-        }
-
-        .treatment-details {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-
-        select, input[type="number"], input[type="text"] {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        select {
-            min-width: 150px;
-        }
-
-        input[type="number"] {
-            width: 100px;
-        }
-
-        input[type="checkbox"] {
-            margin-right: 5px;
-        }
-
-        button[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #45a049;
-        }
-
-        #scanButton {
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
+            margin-bottom: 15px;
             border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        #qrcode img {
-            display: block;
-            margin: 20px auto;
-            max-width: 100%;
-            height: auto;
-        }
-
-        @media (max-width: 550px) {
-            .treatment-details {
-            flex-direction: column;
-            align-items: flex-start;
-            }
-
-            select, input[type="number"], input[type="text"] {
-            max-width: 80%;
-            }
-        }
-
-        #readerContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        #scannerContent {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        #reader {
-            width: 300px;
-            height: 300px;
-            overflow: hidden;
-        }
-
-        #cancelScan {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #f44336;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        body.scanning {
-            overflow: hidden;
         }
     </style>
 </head>
 <body>
-    <h1>Physiotherapy Treatment QR Code Generator</h1>
+    <h1>Patient Treatment Information</h1>
+    <p>Date(日期): <span id="treatmentDate"></span></p>
+    <p>Patient Name(病人姓名): <span id="patientNameDisplay"></span></p>
+    <p>Therapist Name(治療師姓名): <span id="therapistNameDisplay"></span></p>
+    <div id="treatmentDetails"></div>
 
-    <p>Today's Date: <span id="currentDate"></span></p>
-
-    <button id="scanButton">Scan Previous QR Code</button>
-
-    <div id="readerContainer" style="display: none;">
-        <div id="scannerContent">
-            <div id="reader"></div>
-            <button id="cancelScan">Cancel</button>
-        </div>
-    </div>
-
-
-    <form id="treatmentForm">
-        <label for="patientName">Patient Name:</label>
-        <input type="text" id="patientName" required><br><br>
-
-        <label for="therapistName">Therapist Name:</label>
-        <input type="text" id="therapistName" required><br><br>
-        
-        <h3>Treatments:</h3>
-
-        <div class="treatment-option">
-            <input type="checkbox" id="ems" name="treatment" value="EMS">
-            <label for="ems">NMES</label>
-            <div class="treatment-details">
-                <select id="emsRegion">
-                    <option value="">Select Region</option>
-                    <option value="left">Left</option>
-                    <option value="right">Right</option>
-                </select>
-                <select id="emsSubRegion">
-                    <option value="">Select Sub-Region</option>
-                    <option value="vmo">VMO</option>
-                    <option value="hamstrings">Hamstrings</option>
-                    <option value="shoulder">Shoulder</option>
-                    <option value="face">Face</option>
-                    <option value="calf">Calf</option>
-                    <option value="quadriceps">Quadriceps</option>
-                </select>
-                <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
-            </div>
-        </div>
-
-        <div class="treatment-option">
-            <input type="checkbox" id="us" name="treatment" value="Ultrasound">
-            <label for="us">Ultrasound (US)</label>
-            <div class="treatment-details">
-              <select id="usRegion">
-                <option value="">Select Region</option>
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-              </select>
-              <select id="usSubRegion">
-                <option value="">Select Sub-Region</option>
-                <option value="neck">Neck</option>
-                <option value="back">Back</option>
-                <option value="shoulder">Shoulder</option>
-                <option value="elbow">Elbow</option>
-                <option value="wrist">Wrist</option>
-                <option value="hand">Hand</option>
-                <option value="knee">Knee</option>
-                <option value="ankle">Ankle</option>
-                <option value="foot">Foot</option>
-              </select>
-              <input type="text" id="usCustomRegion" placeholder="Custom Region">
-              <input type="number" id="usIntensity" placeholder="Intensity (w/cm2)" step="0.1" min="0">
-              <input type="number" id="usDuration" placeholder="Duration (mins)" min="1">
-              <select id="usPulseMode">
-                <option value="">Pulse Mode</option>
-                <option value="50%">50%</option>
-                <option value="33%">33%</option>
-                <option value="25%">25%</option>
-                <option value="20%">20%</option>
-              </select>
-            </div>
-          </div>
-        
-        <br>
-        <button type="submit">Generate QR Code</button>
-    </form>
-
-    <div id="qrcode"></div>
-    
-
-    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
-        const currentDateElement = document.getElementById('currentDate');
-        const treatmentForm = document.getElementById('treatmentForm');
-        const qrcodeElement = document.getElementById('qrcode');
-        const scanButton = document.getElementById('scanButton');
-        const readerContainer = document.getElementById('readerContainer');
-        const cancelScanButton = document.getElementById('cancelScan');
-        let html5QrCode;
-
         function getCurrentDate() {
             const options = {
                 timeZone: 'Asia/Hong_Kong',
@@ -264,152 +48,97 @@
             return `${year}-${month}-${day}`;
         }
 
-        currentDateElement.textContent = getCurrentDate();
+        const treatmentTranslations = {
+                'EMS': '電機刺激',
+                'Ultrasound': '超聲波',
+                'region': '區域',
+                'subregion': '子區域',
+                'duration': '持續時間',
+                'intensity': '強度 (w/cm2)',
+                'customRegion': '自定義區域',
+                'pulseMode': '脈衝模式',
+                'mode': '模式',
+                'left': '左',
+                'right': '右',
+                'quadriceps': '四頭肌',
+                'vmo': '內側斜肌',
+                'face': '面部',
+                'calf': '小腿',
+                'shoulder': '肩膀',
+                'waist': '腰部',
+                'neck': '頸部',
+                'back': '背部',
+                'elbow': '手肘',
+                'wrist': '手腕',
+                'hand': '手',
+                'knee': '膝蓋',
+                'ankle': '腳踝',
+                'foot': '腳'
+        };
 
-        function startScanner() {
-            readerContainer.style.display = 'flex';
-            document.body.classList.add('scanning');
 
-            html5QrCode = new Html5Qrcode("reader");
-            const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0,
-                disableFlip: false,
-                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
-                experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true
+        function displayPatientView() {
+            const hash = window.location.hash.substr(1);
+
+            if (hash) {
+                try {
+                    const decodedData = atob(hash);
+                    const data = JSON.parse(decodedData);
+                    const today = getCurrentDate();
+
+                    if (data.date === today) {
+                        document.getElementById('treatmentDate').textContent = data.date;
+                        document.getElementById('patientNameDisplay').textContent = data.patientName;
+                        document.getElementById('therapistNameDisplay').textContent = data.therapistName;
+
+                        let treatmentHTML = '<h2>Treatments:</h2>';
+
+                        data.treatments.forEach(treatment => {
+                            // Translate treatment name if available
+                            const treatmentName = treatmentTranslations[treatment.name] || treatment.name;
+
+                            treatmentHTML += `<div class="treatment">`;
+                            treatmentHTML += `<h3>${treatmentName} (${treatment.name})</h3>`;  // Display both English and Chinese names
+
+                            treatmentHTML += `<ul>`;
+
+                            // Check if both region and subregion exist
+                            const region = treatment.region ? treatmentTranslations[treatment.region] || treatment.region : '';
+                            const subregion = treatment.subregion ? treatmentTranslations[treatment.subregion] || treatment.subregion : '';
+
+                            if (region && subregion) {
+                                // Combine region and subregion
+                                treatmentHTML += `<li>區域: ${region}${subregion}</li>`;
+                            }
+
+                            // Iterate through each key-value pair in the treatment, excluding 'region' and 'subregion' since they are combined
+                            for (const [key, value] of Object.entries(treatment)) {
+                                if (key !== 'name' && key !== 'region' && key !== 'subregion') {
+                                    // Translate key and value if available
+                                    const translatedKey = treatmentTranslations[key] || key;
+                                    const translatedValue = treatmentTranslations[value] || value;
+                                    
+                                    treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                                }
+                            }
+
+                            treatmentHTML += `</ul></div>`;
+                        });
+
+                        document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
+                    } else {
+                        alert('This treatment plan has expired.');
+                    }
+                } catch (e) {
+                    console.error("Failed to decode or parse data:", e);
+                    alert('Invalid QR code data.');
                 }
-            };
-
-            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
-                .then(() => {
-                    console.log("QR Code scanning started");
-                    setupCloseUpMode();
-                })
-                .catch(handleScannerError);
-        }
-
-        function stopScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                    readerContainer.style.display = 'none';
-                    document.body.classList.remove('scanning');
-                    html5QrCode = null;
-                }).catch((err) => {
-                    console.error(`Unable to stop scanning: ${err}`);
-                });
             } else {
-                readerContainer.style.display = 'none';
-                document.body.classList.remove('scanning');
+                alert('No treatment data found.');
             }
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
-            console.log(`QR Code detected: ${decodedText}`, decodedResult);
-            
-            const readerElement = document.getElementById('reader');
-            readerElement.style.border = '5px solid green';
-            setTimeout(() => {
-                readerElement.style.border = 'none';
-            }, 1000);
-
-            try {
-                const hash = new URL(decodedText).hash.substr(1);
-                const decodedData = atob(hash);
-                const data = JSON.parse(decodedData);
-                populateForm(data);
-            } catch (error) {
-                console.error("Error processing QR code data:", error);
-            }
-
-            stopScanner();
-        }
-
-        function onScanFailure(error) {
-            console.warn(`QR code scanning failed: ${error}`);
-        }
-
-        function handleScannerError(err) {
-            console.error("Failed to start scanner", err);
-            if (err.name === 'NotAllowedError') {
-                alert("Camera access was denied. Please check your browser settings and grant camera permissions.");
-            } else if (err.name === 'NotFoundError') {
-                alert("No camera found on your device.");
-            } else {
-                alert("Failed to start camera. Error: " + err.message);
-            }
-            readerContainer.style.display = 'none';
-        }
-
-        function setupCloseUpMode() {
-            const videoElement = document.querySelector('#reader video');
-            if (videoElement) {
-                const track = videoElement.srcObject.getVideoTracks()[0];
-                const capabilities = track.getCapabilities();
-                const settings = {};
-                if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-                    settings.focusMode = 'continuous';
-                }
-                track.applyConstraints({ advanced: [settings] })
-                    .then(() => console.log("Close-up mode applied successfully"))
-                    .catch(error => console.error("Could not set close-up mode: ", error));
-            } else {
-                console.log("Video element not found");
-            }
-        }
-
-        function populateForm(data) {
-            document.getElementById('patientName').value = data.patientName;
-            document.getElementById('therapistName').value = data.therapistName;
-            data.treatments.forEach(treatment => {
-                const checkbox = document.querySelector(`input[value="${treatment.name}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    const details = checkbox.closest('.treatment-option').querySelectorAll('select, input[type="number"]');
-                    details.forEach(input => {
-                        if (treatment[input.id]) {
-                            input.value = treatment[input.id];
-                        }
-                    });
-                }
-            });
-        }
-
-        scanButton.addEventListener('click', startScanner);
-        cancelScanButton.addEventListener('click', stopScanner);
-
-        treatmentForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const patientName = document.getElementById('patientName').value;
-            const therapistName = document.getElementById('therapistName').value;
-            const date = getCurrentDate();
-            let treatments = [];
-
-            const treatmentOptions = document.querySelectorAll('.treatment-option');
-            treatmentOptions.forEach(option => {
-                const checkbox = option.querySelector('input[type="checkbox"]');
-                if (checkbox.checked) {
-                    const treatmentName = checkbox.value;
-                    const details = {};
-                    option.querySelectorAll('select, input[type="number"]').forEach(input => {
-                        details[input.id] = input.value;
-                    });
-                    treatments.push({
-                        name: treatmentName,
-                        ...details
-                    });
-                }
-            });
-
-            const data = JSON.stringify({patientName, therapistName, treatments, date});
-            const encodedData = btoa(data);
-            const baseUrl = "https://matthewtse2011.github.io/dspt/";
-            const dataUrl = `${baseUrl}patient.html#${encodedData}`;
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
-            qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
-        });
+        window.onload = displayPatientView;
     </script>
 </body>
 </html>
