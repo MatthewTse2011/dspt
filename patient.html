@@ -122,7 +122,17 @@
                                     const translatedKey = treatmentTranslations[key] || key;
                                     const translatedValue = treatmentTranslations[value] || value;
 
-                                    treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                                    const region = treatment.region ? treatmentTranslations[treatment.region] || treatment.region : '';
+                                    const subregion = treatment.subregion ? treatmentTranslations[treatment.subregion] || treatment.subregion : '';
+
+                                    if (region && subregion) {
+                                        // Combine region and subregion
+                                        treatmentHTML += `<li>區域: ${region}${subregion}</li>`;
+                                    } else {
+                                        treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                                    }
+
+                                    
                                 }
                             }
 
