@@ -27,8 +27,9 @@
 </head>
 <body>
     <h1>Patient Treatment Information</h1>
-    <p>Date: <span id="treatmentDate"></span></p>
-    <p>Patient Name: <span id="patientNameDisplay"></span></p>
+    <p>Date(日期): <span id="treatmentDate"></span></p>
+    <p>Patient Name(病人姓名): <span id="patientNameDisplay"></span></p>
+    <p>Therapist Name(治療師姓名): <span id="therapistNameDisplay"></span></p>
     <div id="treatmentDetails"></div>
 
     <script>
@@ -58,6 +59,7 @@
                 if (data.date === today) {
                     document.getElementById('treatmentDate').textContent = data.date;
                     document.getElementById('patientNameDisplay').textContent = data.patientName;
+                    document.getElementById('therapistNameDisplay').textContent = data.therapistName;
 
                     let treatmentHTML = '<h2>Treatments:</h2>';
                     data.treatments.forEach(treatment => {
