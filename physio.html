@@ -170,30 +170,11 @@
     <form id="treatmentForm">
         <label for="patientName">Patient Name:</label>
         <input type="text" id="patientName" required><br><br>
+
+        <label for="therapistName">Therapist Name:</label>
+        <input type="text" id="therapistName" required><br><br>
         
         <h3>Treatments:</h3>
-
-        <div class="treatment-option">
-            <input type="checkbox" id="ems" name="treatment" value="EMS">
-            <label for="ems">NMES</label>
-            <div class="treatment-details">
-                <select id="emsRegion">
-                    <option value="">Select Region</option>
-                    <option value="left">Left</option>
-                    <option value="right">Right</option>
-                </select>
-                <select id="emsSubRegion">
-                    <option value="">Select Sub-Region</option>
-                    <option value="vmo">VMO</option>
-                    <option value="hamstrings">Hamstrings</option>
-                    <option value="shoulder">Shoulder</option>
-                    <option value="face">Face</option>
-                    <option value="calf">Calf</option>
-                    <option value="quadriceps">Quadriceps</option>
-                </select>
-                <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
-            </div>
-        </div>
 
         <div class="treatment-option">
             <input type="checkbox" id="us" name="treatment" value="Ultrasound">
@@ -227,7 +208,62 @@
                 <option value="20%">20%</option>
               </select>
             </div>
-          </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="hp" name="treatment" value="Hotpack">
+            <label for="hp">Hotpack</label>
+            <div class="treatment-details">
+                <select id="hpRegion">
+                    <option value="">Select Region</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+                <select id="hpSubRegion">
+                    <option value="">Select Sub-Region</option>
+                    <option value="neck">Neck</option>
+                    <option value="back">Back</option>
+                    <option value="shoulder">Shoulder</option>
+                    <option value="elbow">Elbow</option>
+                    <option value="wrist">Wrist</option>
+                    <option value="hand">Hand</option>
+                    <option value="knee">Knee</option>
+                    <option value="ankle">Ankle</option>
+                    <option value="foot">Foot</option>
+                </select>
+                <input type="text" id="hpCustomRegion" placeholder="Custom Region">
+                <input type="number" id="hpDuration" placeholder="Duration (mins)" min="1">
+            </div>
+        </div>
+
+
+            <div class="treatment-option">
+                <input type="checkbox" id="ems" name="treatment" value="EMS">
+                <label for="ems">EMS</label>
+                <div class="treatment-details">
+                    <select id="emsRegion">
+                        <option value="">Select Region</option>
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                    </select>
+                    <select id="emsSubRegion">
+                        <option value="">Select Sub-Region</option>
+                        <option value="vmo">VMO</option>
+                        <option value="hamstrings">Hamstrings</option>
+                        <option value="shoulder">Shoulder</option>
+                        <option value="face">Face</option>
+                        <option value="calf">Calf</option>
+                        <option value="quadriceps">Quadriceps</option>
+                    </select>
+                    <input type="text" id="emsCustomRegion" placeholder="Custom Region">
+                    <input type="text" id="emsMode" placeholder="Mode">
+                    <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
+                </div>
+            </div>
+
+
+
+        </div>
         
         <br>
         <button type="submit">Generate QR Code</button>
@@ -359,6 +395,7 @@
 
         function populateForm(data) {
             document.getElementById('patientName').value = data.patientName;
+            document.getElementById('therapistName').value = data.therapistName;
             data.treatments.forEach(treatment => {
                 const checkbox = document.querySelector(`input[value="${treatment.name}"]`);
                 if (checkbox) {
@@ -379,6 +416,7 @@
         treatmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const patientName = document.getElementById('patientName').value;
+            const therapistName = document.getElementById('therapistName').value;
             const date = getCurrentDate();
             let treatments = [];
 
@@ -391,6 +429,9 @@
                     option.querySelectorAll('select, input[type="number"]').forEach(input => {
                         details[input.id] = input.value;
                     });
+                    option.querySelectorAll('select, input[type="text"]').forEach(input => {
+                        details[input.id] = input.value;
+                    });
                     treatments.push({
                         name: treatmentName,
                         ...details
@@ -398,7 +439,7 @@
                 }
             });
 
-            const data = JSON.stringify({patientName, treatments, date});
+            const data = JSON.stringify({patientName, therapistName, treatments, date});
             const encodedData = btoa(data);
             const baseUrl = "https://matthewtse2011.github.io/dspt/";
             const dataUrl = `${baseUrl}patient.html#${encodedData}`;
