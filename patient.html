@@ -150,10 +150,11 @@
                                         //treatmentHTML += `<p> ${value}</p>`;
                                         treatmentHTML += `${translatedValue}</li>`;
                                     } else if (key.includes("Region")) {
-                                        
-                                        treatmentHTML += `<li>區域: ${translatedValue}`;
+                                        treatmentHTML += `<li>位置: ${translatedValue}`;
                                     } else if (key.includes("Duration")) {
                                         treatmentHTML += `<li>時間 (分鐘): ${translatedValue}</li>`;
+                                    } else if (key.includes("PulseMode") && translatedValue == "" ) {
+                                        treatmentHTML += `hi`;
                                     } else {
                                         treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
                                     }
