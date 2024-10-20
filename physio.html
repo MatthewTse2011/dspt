@@ -550,7 +550,7 @@
             const config = {
                 fps: 10,
                 qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0,
+                aspectRatio: 1.777,
                 disableFlip: false,
                 formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
                 experimentalFeatures: {
@@ -606,6 +606,8 @@
 
             stopScanner();
         }
+
+        
 
         function onScanFailure(error) {
             console.warn(`QR code scanning failed: ${error}`);
