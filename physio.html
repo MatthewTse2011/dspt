@@ -663,7 +663,7 @@
         scanButton.addEventListener('click', startScanner);
         cancelScanButton.addEventListener('click', stopScanner);
 
-        treatmentForm.addEventListener('submit', function(e) {
+        treatmentForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const patientName = document.getElementById('patientName').value;
@@ -673,21 +673,21 @@
             let treatments = [];
 
             const treatmentOptions = document.querySelectorAll('.treatment-option');
+
             treatmentOptions.forEach(option => {
                 const checkbox = option.querySelector('input[type="checkbox"]');
                 if (checkbox.checked) {
-                    const treatmentName = checkbox.value;
-                    const details = {};
-                    option.querySelectorAll('select, input[type="number"]').forEach(input => {
-                        details[input.id] = input.value;
-                    });
-                    option.querySelectorAll('select, input[type="text"]').forEach(input => {
-                        details[input.id] = input.value;
-                    });
-                    treatments.push({
-                        name: treatmentName,
-                        ...details
-                    });
+                const treatmentName = checkbox.value;
+                const details = {};
+                option.querySelectorAll('select, input[type="number"], input[type="text"]').forEach(input => {
+                    if (input.value) {
+                    details[input.id] = input.value;
+                    }
+                });
+                treatments.push({
+                    name: treatmentName,
+                    ...details
+                });
                 }
             });
 
@@ -697,11 +697,26 @@
             const compressedData = LZString.compressToBase64(data);
 
             const baseUrl = "https://matthewtse2011.github.io/dspt/";
-            const dataUrl = `${baseUrl}patient.html#${compressedData}`;
+            const longUrl = `${baseUrl}patient.html#${compressedData}`;
 
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}&ecc=L`;
-            qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
-        });
+            try {
+                const shortUrl = await getShortUrl(longUrl);
+                const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortUrl)}&ecc=L`;
+                qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
+            } catch (error) {
+                console.error("Error generating short URL:", error);
+                alert("Failed to generate QR code. Please try again.");
+            }
+            });
+
+            async function getShortUrl(longUrl) {
+            const apiUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.text();
+        }
     </script>
 </body>
 </html>
