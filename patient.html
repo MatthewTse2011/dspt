@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <h1>Patient Treatment Information1</h1>
+    <h1>Patient Treatment Information</h1>
     <p>Date(日期): <span id="treatmentDate"></span></p>
     <p>Patient Name(病人姓名): <span id="patientNameDisplay"></span></p>
     <p>Therapist Code/Name(治療師編號/姓名): <span id="therapistNameDisplay"></span></p>
@@ -153,7 +153,7 @@
                                         
                                         treatmentHTML += `<li>區域: ${translatedValue}`;
                                     } else if (key.includes("Duration")) {
-                                        treatmentHTML += `<li>時間 (分鐘): ${translatedKey}: ${translatedValue}</li>`;
+                                        treatmentHTML += `<li>時間 (分鐘): ${translatedValue}</li>`;
                                     } else {
                                         treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
                                     }
