@@ -145,16 +145,16 @@
                                     //}
 
                                     if (key.includes("CustomRegion") && translatedValue != ""){
-                                        treatmentHTML += `<li>${translatedKey}: ${translatedValue}bye</li>`;
+                                        treatmentHTML += `<li>位置: ${translatedValue}bye</li>`;
 
-                                    } else if (key.includes("SubRegion")) {
+                                    } else if (key.includes("SubRegion") && translatedValue != "") {
                                         // Combine region and subregion
                                         //treatmentHTML += `<p> bye </p>`;
                                         //treatmentHTML += `<p> ${value}</p>`;
                                         treatmentHTML += `${translatedValue}</li>`;
 
-                                    } else if (key.includes("Region")) {
-                                        treatmentHTML += `<li>位置: ${translatedValue} gg`;
+                                    } else if (key.includes("Region") && translatedValue != "") {
+                                        treatmentHTML += `<li>位置: ${translatedValue}`;
 
                                     } else if (key.includes("Duration")) {
                                         treatmentHTML += `<li>時間 (分鐘): ${translatedValue}</li>`;
