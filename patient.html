@@ -112,34 +112,24 @@
                 'leg': '腳'
         };
 
-
-        function displayPatientView() {
-            const hash = window.location.hash.substr(1);  // Get the hash from the URL
-            
-            if (hash) {
+        async function displayPatientView() {
+            const shortUrl = window.location.hash.substr(1);
+            if (shortUrl) {
                 try {
-                    // Decompress the data after decoding
-                    const decodedData = LZString.decompressFromBase64(hash);
-                    
-                    if (!decodedData) {
-                        throw new Error("Decompression failed or the data is invalid.");
-                    }
-                    
-                    // Parse the decompressed JSON data
-                    const data = JSON.parse(decodedData);
-                    
-                    const today = getCurrentDate();
-                    
-                    // Check if the treatment plan is for today
-                    if (data.date === today) {
-                        document.getElementById('treatmentDate').textContent = data.date;
-                        document.getElementById('patientNameDisplay').textContent = data.patientName;
-                        document.getElementById('therapistNameDisplay').textContent = data.therapistName;
-                        
-                        let treatmentHTML = '<h2>Treatments:</h2>';
-                        
-                        data.treatments.forEach(treatment => {
-                            const treatmentName = treatmentTranslations[treatment.name] || treatment.name;
+                const longUrl = await expandShortUrl(shortUrl);
+                const hash = new URL(longUrl).hash.substr(1);
+                const decodedData = LZString.decompressFromBase64(hash);
+                const data = JSON.parse(decodedData);
+
+                const today = getCurrentDate();
+                if (data.date === today) {
+                    document.getElementById('treatmentDate').textContent = data.date;
+                    document.getElementById('patientNameDisplay').textContent = data.patientName;
+                    document.getElementById('therapistNameDisplay').textContent = data.therapistName;
+
+                    let treatmentHTML = '<h2>Treatments:</h2>';
+                    data.treatments.forEach(treatment => {
+                        const treatmentName = treatmentTranslations[treatment.name] || treatment.name;
                             treatmentHTML += `<div class="treatment">`;
                             treatmentHTML += `<h3>${treatmentName} (${treatment.name})</h3>`;
                             treatmentHTML += `<ul>`;
@@ -178,19 +168,24 @@
                             }
                             
                             treatmentHTML += `</ul></div>`;
-                        });
-                        
-                        document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
-                    } else {
-                        alert('This treatment plan has expired.');
-                    }
+                    });
+
+                    document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
+                } else {
+                    alert('This treatment plan has expired.');
+                }
                 } catch (e) {
-                    console.error("Failed to decode or parse data:", e);
-                    alert('Invalid or corrupted QR code data.');
+                console.error("Failed to decode or parse data:", e);
+                alert('Invalid QR code data.');
                 }
             } else {
                 alert('No treatment data found.');
             }
+            }
+
+            async function expandShortUrl(shortUrl) {
+            const response = await fetch(shortUrl);
+            return response.url; // This will be the expanded URL
         }
 
 
