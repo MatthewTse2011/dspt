@@ -515,6 +515,7 @@
     
 
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script>
         const currentDateElement = document.getElementById('currentDate');
         const treatmentForm = document.getElementById('treatmentForm');
@@ -583,17 +584,21 @@
 
         function onScanSuccess(decodedText, decodedResult) {
             console.log(`QR Code detected: ${decodedText}`, decodedResult);
-            
+
             const readerElement = document.getElementById('reader');
             readerElement.style.border = '5px solid green';
+
             setTimeout(() => {
                 readerElement.style.border = 'none';
             }, 1000);
 
             try {
                 const hash = new URL(decodedText).hash.substr(1);
-                const decodedData = atob(hash);
+
+                // Decompress the data after decoding
+                const decodedData = LZString.decompressFromBase64(hash);
                 const data = JSON.parse(decodedData);
+
                 populateForm(data);
             } catch (error) {
                 console.error("Error processing QR code data:", error);
@@ -657,9 +662,11 @@
 
         treatmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
+
             const patientName = document.getElementById('patientName').value;
             const therapistName = document.getElementById('therapistName').value;
             const date = getCurrentDate();
+
             let treatments = [];
 
             const treatmentOptions = document.querySelectorAll('.treatment-option');
@@ -681,10 +688,14 @@
                 }
             });
 
-            const data = JSON.stringify({patientName, therapistName, treatments, date});
-            const encodedData = btoa(data);
+            const data = JSON.stringify({ patientName, therapistName, treatments, date });
+
+            // Compress the data before encoding it
+            const compressedData = LZString.compressToBase64(data);
+
             const baseUrl = "https://matthewtse2011.github.io/dspt/";
-            const dataUrl = `${baseUrl}patient.html#${encodedData}`;
+            const dataUrl = `${baseUrl}patient.html#${compressedData}`;
+
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
             qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
         });
