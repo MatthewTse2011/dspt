@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <h1>Patient Treatment Information</h1>
+    <h1>Patient Treatment Information1</h1>
     <p>Date(日期): <span id="treatmentDate"></span></p>
     <p>Patient Name(病人姓名): <span id="patientNameDisplay"></span></p>
     <p>Therapist Code/Name(治療師編號/姓名): <span id="therapistNameDisplay"></span></p>
@@ -54,8 +54,8 @@
                 'EMS': '電機',
                     'emsMode': 'Mode',
                     'emsCustomRegion': '自定義區域',
-                    'emsRegion': '區域', 
-                    'emsSubRegion': '子區域',
+                    //'emsRegion': '區域', 
+                    //'emsSubRegion': '子區域',
                 'Ultrasound': '超聲波', 
                     'usRegion': '區域', 
                     'usSubRegion': '子區域',
@@ -152,6 +152,8 @@
                                     } else if (key.includes("Region")) {
                                         
                                         treatmentHTML += `<li>區域: ${translatedValue}`;
+                                    } else if (key.includes("Duration")) {
+                                        treatmentHTML += `<li>時間 (分鐘): ${translatedKey}: ${translatedValue}</li>`;
                                     } else {
                                         treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
                                     }
