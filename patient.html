@@ -70,7 +70,7 @@
                 'duration': '持續時間',
                 'mode': '模式',
                 'quadriceps': '四頭肌',
-                'vmo': '內側斜肌',
+                'vmo': '內側斜肌(VMO)',
                 'face': '面',
                 'calf': '小腿',
                 'shoulder': '肩',
@@ -144,7 +144,9 @@
                                     //    treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
                                     //}
 
-                                    if (key.includes("SubRegion")) {
+                                    if (key.includes("CustomRegion" && translatedValue == true)){
+                                        treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                                    } else if (key.includes("SubRegion")) {
                                         // Combine region and subregion
                                         //treatmentHTML += `<p> bye </p>`;
                                         //treatmentHTML += `<p> ${value}</p>`;
