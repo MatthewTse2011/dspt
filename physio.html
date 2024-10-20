@@ -696,7 +696,7 @@
             const baseUrl = "https://matthewtse2011.github.io/dspt/";
             const dataUrl = `${baseUrl}patient.html#${compressedData}`;
 
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(dataUrl)}&ecc=L`;
             qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
         });
     </script>
