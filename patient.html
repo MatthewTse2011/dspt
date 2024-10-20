@@ -49,29 +49,32 @@
         }
 
         const treatmentTranslations = {
-                'EMS': '電機刺激',
-                'Ultrasound': '超聲波',
+                'left': '左',
+                'right': '右',
+                'EMS': '電機',
+                    'emsMode': 'Mode',
+                    'emsCustomRegion': '自定義區域',
+                'Ultrasound': '超聲波', 
+                    'usRegion': '區域', 
+                    'usSubRegion': '子區域',
+                    'usIntensity': '強度 (w/cm2)',
+                    'usDuration': '時間 (分鐘)',
+                    'usPulseMode': 'Pulse Mode',
+                    'CustomRegion': '自定義區域',
+                    'pulseMode': '脈衝模式',
+                'hp': '熱敷',
                 'region': '區域',
                 'subregion': '子區域',
                 'duration': '持續時間',
-                'usRegion': '區域',
-                'usSubRegion': '子區域',
-                'usIntensity': '強度 (w/cm2)',
-                'usDuration': '時間 (分鐘)',
-                'usPulseMode': 'Pulse Mode',
-                'customRegion': '自定義區域',
-                'pulseMode': '脈衝模式',
                 'mode': '模式',
-                'left': '左',
-                'right': '右',
                 'quadriceps': '四頭肌',
                 'vmo': '內側斜肌',
-                'face': '面部',
+                'face': '面',
                 'calf': '小腿',
-                'shoulder': '肩膀',
+                'shoulder': '肩',
                 'waist': '腰部',
                 'neck': '頸部',
-                'back': '背部',
+                'back': '腰部',
                 'elbow': '手肘',
                 'wrist': '手腕',
                 'hand': '手',
@@ -128,13 +131,25 @@
 
                                     //treatmentHTML += `<li>${region}: ${subregion}</li>`;
 
-                                    if (key == "usRegion") {
+                                    //if (key == "usRegion") {
                                         // Combine region and subregion
                                         //treatmentHTML += `<p> bye </p>`;
                                         //treatmentHTML += `<p> ${value}</p>`;
-                                        treatmentHTML += `<li>區域: ${translatedValue}`;
-                                    } else if (key == 'usSubRegion') {
+                                    //    treatmentHTML += `<li>區域: ${translatedValue}`;
+                                    //} else if (key == 'usSubRegion') {
+                                    //    treatmentHTML += `${translatedValue}</li>`;
+                                    //} else {
+                                    //    treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                                    //}
+
+                                    if (key.includes("SubRegion")) {
+                                        // Combine region and subregion
+                                        //treatmentHTML += `<p> bye </p>`;
+                                        //treatmentHTML += `<p> ${value}</p>`;
                                         treatmentHTML += `${translatedValue}</li>`;
+                                    } else if (key.includes("Region")) {
+                                        
+                                        treatmentHTML += `<li>區域: ${translatedValue}`;
                                     } else {
                                         treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
                                     }
