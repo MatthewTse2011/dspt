@@ -65,6 +65,7 @@
                     'CustomRegion': '自定義區域',
                     'pulseMode': '脈衝模式',
                 'Hotpack': '熱敷',
+                'Icepack': '冰敷',
                 'MTP': '磁療',
                 'Hotmagner': '熱磁機',
                 'IFT': '干擾波',
@@ -100,7 +101,10 @@
                 'hip': '臀',
                 'knee': '膝蓋',
                 'ankle': '腳踝',
-                'foot': '腳'
+                'foot': '腳',
+                'arm': '手臂',
+                'forearm': '前臂',
+                'leg': '腳'
         };
 
 
@@ -192,7 +196,10 @@
                                     } else if (key.includes("tensModes") && translatedValue != "" ) {
                                         treatmentHTML += `<li> ${translatedValue}</li>`;
 
-                                    } else if (key.includes("Position")) {
+                                    } else if (key.includes("Position") && translatedValue != "" ) {
+                                        treatmentHTML += `<li> ${translatedValue}</li>`;
+
+                                    } else if ((key.includes("bteGadget") || key.includes("bteMode")) && translatedValue != "" ) {
                                         treatmentHTML += `<li> ${translatedValue}</li>`;
 
                                     } else if (translatedValue != "") {
