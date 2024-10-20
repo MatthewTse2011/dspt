@@ -145,7 +145,7 @@
                                     //}
 
                                     if (key.includes("CustomRegion") && translatedValue != ""){
-                                        treatmentHTML += `<li>位置: ${translatedValue}bye</li>`;
+                                        treatmentHTML += `<li>位置: ${translatedValue}</li>`;
 
                                     } else if (key.includes("SubRegion") && translatedValue != "") {
                                         // Combine region and subregion
@@ -156,7 +156,7 @@
                                     } else if (key.includes("Region") && translatedValue != "") {
                                         treatmentHTML += `<li>位置: ${translatedValue}`;
 
-                                    } else if (key.includes("Duration")) {
+                                    } else if (key.includes("Duration") && translatedValue != "") {
                                         treatmentHTML += `<li>時間 (分鐘): ${translatedValue}</li>`;
 
                                     } else if (key.includes("PulseMode") && translatedValue == "" ) {
