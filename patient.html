@@ -112,11 +112,19 @@
                 'leg': '腳'
         };
 
+
+        async function expandShortUrl(shortUrl) {
+            const response = await fetch(shortUrl);
+            return response.url; // This will be the expanded URL
+        }
+
         async function displayPatientView() {
             const shortUrl = window.location.hash.substr(1);
             if (shortUrl) {
                 try {
-                const longUrl = await expandShortUrl(shortUrl);
+                // Use the full short URL, including the protocol
+                const fullShortUrl = `https://${shortUrl}`;
+                const longUrl = await expandShortUrl(fullShortUrl);
                 const hash = new URL(longUrl).hash.substr(1);
                 const decodedData = LZString.decompressFromBase64(hash);
                 const data = JSON.parse(decodedData);
@@ -169,8 +177,6 @@
                             
                             treatmentHTML += `</ul></div>`;
                     });
-
-                    document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
                 } else {
                     alert('This treatment plan has expired.');
                 }
@@ -181,13 +187,7 @@
             } else {
                 alert('No treatment data found.');
             }
-            }
-
-            async function expandShortUrl(shortUrl) {
-            const response = await fetch(shortUrl);
-            return response.url; // This will be the expanded URL
         }
-
 
         window.onload = displayPatientView;
     </script>
