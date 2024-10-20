@@ -170,6 +170,9 @@
                                     } else if (key.includes("Parameter") && translatedValue != "") {
                                         treatmentHTML += `<li> ${translatedValue}</li>`;
 
+                                    } else if (key.includes("tensModes") && translatedValue == "" ) {
+                                        treatmentHTML += ``;
+
                                     } else if (translatedValue != "") {
                                         treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
                                     }
