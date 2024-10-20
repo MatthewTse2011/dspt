@@ -193,6 +193,7 @@
                 <option value="elbow">Elbow</option>
                 <option value="wrist">Wrist</option>
                 <option value="hand">Hand</option>
+                <option value="hip">Hip</option>
                 <option value="knee">Knee</option>
                 <option value="ankle">Ankle</option>
                 <option value="foot">Foot</option>
@@ -200,6 +201,10 @@
               <input type="text" id="usCustomRegion" placeholder="Custom Region">
               <input type="number" id="usIntensity" placeholder="Intensity (w/cm2)" step="0.1" min="0">
               <input type="number" id="usDuration" placeholder="Duration (mins)" min="1">
+              <select id="usDeliver">
+                <option value="免提">免提</option>
+                <option value="人手">人手</option>
+              </select>
               <select id="usPulseMode">
                 <option value="">Pulse Mode</option>
                 <option value="50%">50%</option>
@@ -227,46 +232,283 @@
                     <option value="elbow">Elbow</option>
                     <option value="wrist">Wrist</option>
                     <option value="hand">Hand</option>
+                    <option value="hip">Hip</option>
                     <option value="knee">Knee</option>
                     <option value="ankle">Ankle</option>
                     <option value="foot">Foot</option>
                 </select>
                 <input type="text" id="hpCustomRegion" placeholder="Custom Region">
-                <input type="number" id="hpDuration" placeholder="Duration (mins)" min="1">
+                <label for="hpDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="hpDuration" placeholder="Duration (mins)" min="1" value = "15">
             </div>
         </div>
 
-
-            <div class="treatment-option">
-                <input type="checkbox" id="ems" name="treatment" value="EMS">
-                <label for="ems">EMS</label>
-                <div class="treatment-details">
-                    <select id="emsRegion">
-                        <option value="">Select Region</option>
-                        <option value="left">Left</option>
-                        <option value="right">Right</option>
-                    </select>
-                    <select id="emsSubRegion">
-                        <option value="">Select Sub-Region</option>
-                        <option value="vmo">VMO</option>
-                        <option value="hamstrings">Hamstrings</option>
-                        <option value="shoulder">Shoulder</option>
-                        <option value="face">Face</option>
-                        <option value="calf">Calf</option>
-                        <option value="quadriceps">Quadriceps</option>
-                    </select>
-                    <input type="text" id="emsCustomRegion" placeholder="Custom Region">
-                    <input type="text" id="emsMode" placeholder="Mode">
-                    <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1">
-                </div>
+        <div class="treatment-option">
+            <input type="checkbox" id="mtp" name="treatment" value="MTP">
+            <label for="mtp">MTP</label>
+            <div class="treatment-details">
+                <select id="mtpRegion">
+                    <option value="">Select Region</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+                <select id="mtpSubRegion">
+                    <option value="">Select Sub-Region</option>
+                    <option value="neck">Neck</option>
+                    <option value="back">Back</option>
+                    <option value="shoulder">Shoulder</option>
+                    <option value="elbow">Elbow</option>
+                    <option value="wrist">Wrist</option>
+                    <option value="hand">Hand</option>
+                    <option value="hip">Hip</option>
+                    <option value="knee">Knee</option>
+                    <option value="ankle">Ankle</option>
+                    <option value="foot">Foot</option>
+                </select>
+                <input type="text" id="mtpCustomRegion" placeholder="Custom Region">
+                <select id="mtpParameters">
+                    <option value="">Select parameters</option>
+                    <option value="+ice 20/60/6">+ice 20/60/6</option>
+                    <option value="20/80/25">20/80/25</option>
+                    <option value="20/60/6 (no ice)">20/60/6 (no ice)</option>
+                    <option value="15/70/17">15/70/17</option>
+                    <option value="30/99/50">30/99/50</option>
+                </select>
+                <input type="text" id="mtpCustomParameters" placeholder="Custom parameters">
             </div>
-
-
-
         </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="tens" name="treatment" value="TENS">
+            <label for="tens">TENS</label>
+            <div class="treatment-details">
+                <select id="tensRegion">
+                    <option value="">Select Region</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+                <select id="tensSubRegion">
+                    <option value="">Select Sub-Region</option>
+                    <option value="neck">Neck</option>
+                    <option value="back">Back</option>
+                    <option value="shoulder">Shoulder</option>
+                    <option value="elbow">Elbow</option>
+                    <option value="wrist">Wrist</option>
+                    <option value="hand">Hand</option>
+                    <option value="hip">Hip</option>
+                    <option value="knee">Knee</option>
+                    <option value="ankle">Ankle</option>
+                    <option value="foot">Foot</option>
+                </select>
+                <input type="text" id="tensCustomRegion" placeholder="Custom Region">
+                <select id="tensModes">
+                    <option value="M mode">M mode</option>
+                    <option value="C mode">C mode</option>
+                    <option value="B mode">B mode</option>
+                </select>
+                <label for="tensDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="tensDuration" placeholder="Duration (mins)" min="1" value = "15">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="ems" name="treatment" value="EMS">
+            <label for="ems">EMS</label>
+            <div class="treatment-details">
+                <select id="emsRegion">
+                    <option value="">Select Region</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+                <select id="emsSubRegion">
+                    <option value="">Select Sub-Region</option>
+                    <option value="vmo">VMO</option>
+                    <option value="hamstrings">Hamstrings</option>
+                    <option value="shoulder">Shoulder</option>
+                    <option value="face">Face</option>
+                    <option value="calf">Calf</option>
+                    <option value="quadriceps">Quadriceps</option>
+                </select>
+                <input type="text" id="emsCustomRegion" placeholder="Custom Region">
+                <input type="text" id="emsMode" placeholder="Mode">
+                <label for="emsDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="emsDuration" placeholder="Duration (mins)" min="1" value = "15">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="hotmagner" name="treatment" value="Hotmagner">
+            <label for="hotmagner">Hotmagner</label>
+            <div class="treatment-details">
+                <select id="hotmagnerRegion">
+                    <option value="">Select Region</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+                <select id="hotmangerSubRegion">
+                    <option value="">Select Sub-Region</option>
+                    <option value="neck">Neck</option>
+                    <option value="back">Back</option>
+                    <option value="shoulder">Shoulder</option>
+                    <option value="elbow">Elbow</option>
+                    <option value="wrist">Wrist</option>
+                    <option value="hand">Hand</option>
+                    <option value="hip">Hip</option>
+                    <option value="knee">Knee</option>
+                    <option value="ankle">Ankle</option>
+                    <option value="foot">Foot</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="ift" name="treatment" value="IFT">
+            <label for="ift">IFT</label>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="wax" name="treatment" value="Wax">
+            <label for="wax">Wax</label>
+            <div class="treatment-details">
+                <select id="waxRegion">
+                    <option value="">Select Region</option>
+                    <option value="left hand">左手</option>
+                    <option value="right hand">右手</option>
+                </select>
+                <label for="waxDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="waxDuration" placeholder="Duration (mins)" min="1" value = "15">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="whirlpool" name="treatment" value="Whirlpool">
+            <label for="whirlpool">Whirlpool</label>
+            <div class="treatment-details">
+                <select id="whirlpoolRegion">
+                    <option value="">Select Region</option>
+                    <option value="left hand">左手</option>
+                    <option value="right hand">右手</option>
+                </select>
+                <label for="whirlpoolDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="whirlpoolDuration" placeholder="Duration (mins)" min="1" value = "10">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="int" name="treatment" value="INT">
+            <label for="int">INT</label>
+            <div class="treatment-details">
+                <select id="intPosition">
+                    <option value="supine">Supine</option>
+                    <option value="sitting">Sitting</option>
+                </select>
+                <label for="intDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="intDuration" placeholder="Duration (mins)" min="1" value = "15">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="ipt" name="treatment" value="IPT">
+            <label for="ipt">IPT</label>
+            <div class="treatment-details">
+                <select id="iptPosition">
+                    <option value="supine+chair">Supine + Chair</option>
+                    <option value="supine+pillow">Supine + Pillow</option>
+                    <option value="prone">Prone</option>
+                </select>
+                <label for="iptDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="iptDuration" placeholder="Duration (mins)" min="1" value = "15">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="ilt" name="treatment" value="ILT">
+            <label for="ilt">拉腳</label>
+            <div class="treatment-details">
+                <select id="iltPosition">
+                    <option value="left leg">left leg</option>
+                    <option value="right leg">right leg</option>
+                </select>
+                <label for="iltDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="iltDuration" placeholder="Duration (mins)" min="1" value = "15">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="bte" name="treatment" value="BTE">
+            <label for="bte">BTE</label>
+            <div class="treatment-details">
+                <select id="bteRegion">
+                    <option value="">Select Region</option>
+                    <option value="left hand">左手</option>
+                    <option value="right hand">右手</option>
+                </select>
+                <select id="bteGadget">
+                    <option value="162">162</option>
+                    <option value="701">701</option>
+                </select>
+                <select id="bteMode">
+                    <option value="concentric+concentric">concentric+concentric</option>
+                </select>
+                <label for="bteDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="bteDuration" placeholder="Duration (mins)" min="1" value = "10">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="idc" name="treatment" value="IDC">
+            <label for="idc">IDC</label>
+            <div class="treatment-details">
+                <select id="idcRegion">
+                    <option value="">Select Region</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+                <select id="idcSubRegion">
+                    <option value="">Select Sub-Region</option>
+                    <option value="shoulder">Shoulder</option>
+                    <option value="arm">Arm</option>
+                    <option value="forearm">Forearm</option>
+                    <option value="hand">Hand</option>
+                    <option value="leg">Leg</option>
+                </select>
+                <input type="text" id="idcCustomRegion" placeholder="Custom Region">
+            </div>
+        </div>
+
+        <div class="treatment-option">
+            <input type="checkbox" id="ice" name="treatment" value="Icepack">
+            <label for="ice">Icepack</label>
+            <div class="treatment-details">
+                <select id="iceRegion">
+                    <option value="">Select Region</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+                <select id="iceSubRegion">
+                    <option value="">Select Sub-Region</option>
+                    <option value="neck">Neck</option>
+                    <option value="back">Back</option>
+                    <option value="shoulder">Shoulder</option>
+                    <option value="elbow">Elbow</option>
+                    <option value="wrist">Wrist</option>
+                    <option value="hand">Hand</option>
+                    <option value="hip">Hip</option>
+                    <option value="knee">Knee</option>
+                    <option value="ankle">Ankle</option>
+                    <option value="foot">Foot</option>
+                </select>
+                <input type="text" id="iceCustomRegion" placeholder="Custom Region">
+                <label for="iceDuration" style="font-weight: normal; font-size: 14px;">Duration (mins):</label>
+                <input type="number" id="iceDuration" placeholder="Duration (mins)" min="1" value = "15">
+            </div>
+        </div>
+
+    </div>
         
         <br>
         <button type="submit">Generate QR Code</button>
+
     </form>
 
     <div id="qrcode"></div>
