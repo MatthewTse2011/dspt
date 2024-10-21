@@ -724,8 +724,7 @@
         });
 
         function getShortUrl(longUrl) {
-            const data = longUrl.split('#')[1];
-            return btoa(data).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+            return btoa(longUrl).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
         }
     </script>
 </body>
