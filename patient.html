@@ -32,10 +32,7 @@
     <p>Therapist Code/Name(治療師編號/姓名): <span id="therapistNameDisplay"></span></p>
     <div id="treatmentDetails"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
-
     <script>
-        
         function getCurrentDate() {
             const options = {
                 timeZone: 'Asia/Hong_Kong',
@@ -113,112 +110,121 @@
         };
 
 
-        async function expandShortUrl(shortUrl) {
-            try {
-                console.log("Attempting to expand URL:", shortUrl);
-                const response = await fetch(shortUrl, { 
-                redirect: 'follow',
-                mode: 'cors'  // Changed from 'no-cors' to 'cors'
-                });
-                if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                console.log("Expanded URL:", response.url);
-                return response.url; // This will be the expanded URL
-            } catch (error) {
-                console.error("Error expanding short URL:", error);
-                throw error;
-            }
-        }
+        function displayPatientView() {
+            const hash = window.location.hash.substr(1);
 
-        async function displayPatientView() {
-            const shortUrl = window.location.hash.substr(1);
-            console.log("Raw hash value:", window.location.hash);
-            console.log("Extracted short URL:", shortUrl);
-            
-            if (shortUrl) {
+            if (hash) {
                 try {
-                const longUrl = await expandShortUrl(shortUrl);
-                console.log("Expanded URL:", longUrl);
+                    const decodedData = atob(hash);
+                    const data = JSON.parse(decodedData);
+                    const today = getCurrentDate();
 
-                const hash = new URL(longUrl).hash.substr(1);
-                console.log("Hash from long URL:", hash);
+                    if (data.date === today) {
+                        document.getElementById('treatmentDate').textContent = data.date;
+                        document.getElementById('patientNameDisplay').textContent = data.patientName;
+                        document.getElementById('therapistNameDisplay').textContent = data.therapistName;
 
-                const decodedData = LZString.decompressFromBase64(hash);
-                console.log("Decoded data:", decodedData);
-                
-                if (!decodedData) {
-                    throw new Error("Decoded data is null or undefined");
-                }
-                
-                const data = JSON.parse(decodedData);
-                console.log("Parsed data:", data);
-                
-                if (!data || !data.date) {
-                    throw new Error("Data object is invalid or missing date property");
-                }
-                const today = getCurrentDate();
-                if (data.date === today) {
-                    document.getElementById('treatmentDate').textContent = data.date;
-                    document.getElementById('patientNameDisplay').textContent = data.patientName || 'N/A';
-                    document.getElementById('therapistNameDisplay').textContent = data.therapistName || 'N/A';
+                        let treatmentHTML = '<h2>Treatments:</h2>';
 
-                    let treatmentHTML = '<h2>Treatments:</h2>';
-                    if (Array.isArray(data.treatments)) {
-                    data.treatments.forEach(treatment => {
-                        const treatmentName = treatmentTranslations[treatment.name] || treatment.name;
-                        treatmentHTML += `<div class="treatment">`;
-                        treatmentHTML += `<h3>${treatmentName} (${treatment.name})</h3>`;
-                        treatmentHTML += `<ul>`;
-                        for (const [key, value] of Object.entries(treatment)) {
-                        if (key !== 'name') {
-                            const translatedKey = treatmentTranslations[key] || key;
-                            const translatedValue = treatmentTranslations[value] || value;
-                            if (key.includes("CustomRegion") && translatedValue != "") {
-                            treatmentHTML += `<li>位置: ${translatedValue}</li>`;
-                            } else if (key.includes("SubRegion") && translatedValue != "") {
-                            treatmentHTML += `${translatedValue}</li>`;
-                            } else if (key.includes("Region") && translatedValue != "") {
-                            treatmentHTML += `<li>位置: ${translatedValue}`;
-                            } else if (key.includes("Duration") && translatedValue != "") {
-                            treatmentHTML += `<li>時間 (分鐘): ${translatedValue}</li>`;
-                            } else if (key.includes("PulseMode") && translatedValue == "") {
-                            treatmentHTML += ``;
-                            } else if (key.includes("usDeliver") && translatedValue != "") {
-                            treatmentHTML += `<li> ${translatedValue}</li>`;
-                            } else if (key.includes("CustomParameter") && translatedValue != "") {
-                            treatmentHTML += `<li> ${translatedValue}</li>`;
-                            } else if (key.includes("Parameter") && translatedValue != "") {
-                            treatmentHTML += `<li> ${translatedValue}</li>`;
-                            } else if (key.includes("tensModes") && translatedValue != "") {
-                            treatmentHTML += `<li> ${translatedValue}</li>`;
-                            } else if (key.includes("Position") && translatedValue != "") {
-                            treatmentHTML += `<li> ${translatedValue}</li>`;
-                            } else if ((key.includes("bteGadget") || key.includes("bteMode")) && translatedValue != "") {
-                            treatmentHTML += `<li> ${translatedValue}</li>`;
-                            } else if (translatedValue != "") {
-                            treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                        data.treatments.forEach(treatment => {
+                            // Translate treatment name if available
+                            const treatmentName = treatmentTranslations[treatment.name] || treatment.name;
+
+                            treatmentHTML += `<div class="treatment">`;
+                            treatmentHTML += `<h3>${treatmentName} (${treatment.name})</h3>`;  // Display both English and Chinese names
+
+                            treatmentHTML += `<ul>`;
+
+                            // Check if both region and subregion exist
+                            //const region = treatment.region ? treatmentTranslations[treatment.region] || treatment.region : '';
+                            //const subregion = treatment.subregion ? treatmentTranslations[treatment.subregion] || treatment.subregion : '';
+
+                            //if (region && subregion) {
+                                // Combine region and subregion
+                            //    treatmentHTML += `<li>區域: ${region}${subregion}</li>`;
+                            //}
+
+                            // Iterate through each key-value pair in the treatment, excluding 'region' and 'subregion' since they are combined
+                            for (const [key, value] of Object.entries(treatment)) {
+                                //if (key !== 'name' && key !== 'region' && key !== 'subregion') {
+                                if (key !== 'name') {
+                                    // Translate key and value if available
+                                    const translatedKey = treatmentTranslations[key] || key;
+                                    const translatedValue = treatmentTranslations[value] || value;
+
+                                    const region = treatmentTranslations[treatment.region];
+                                    const subregion = treatmentTranslations[treatment.subregion];
+
+                                    //treatmentHTML += `<li>${region}: ${subregion}</li>`;
+
+                                    //if (key == "usRegion") {
+                                        // Combine region and subregion
+                                        //treatmentHTML += `<p> bye </p>`;
+                                        //treatmentHTML += `<p> ${value}</p>`;
+                                    //    treatmentHTML += `<li>區域: ${translatedValue}`;
+                                    //} else if (key == 'usSubRegion') {
+                                    //    treatmentHTML += `${translatedValue}</li>`;
+                                    //} else {
+                                    //    treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                                    //}
+
+                                    if (key.includes("CustomRegion") && translatedValue != ""){
+                                        treatmentHTML += `<li>位置: ${translatedValue}</li>`;
+
+                                    } else if (key.includes("SubRegion") && translatedValue != "") {
+                                        // Combine region and subregion
+                                        //treatmentHTML += `<p> bye </p>`;
+                                        //treatmentHTML += `<p> ${value}</p>`;
+                                        treatmentHTML += `${translatedValue}</li>`;
+
+                                    } else if (key.includes("Region") && translatedValue != "") {
+                                        treatmentHTML += `<li>位置: ${translatedValue}`;
+
+                                    } else if (key.includes("Duration") && translatedValue != "") {
+                                        treatmentHTML += `<li>時間 (分鐘): ${translatedValue}</li>`;
+
+                                    } else if (key.includes("PulseMode") && translatedValue == "" ) {
+                                        treatmentHTML += ``;
+
+                                    } else if (key.includes("usDeliver") && translatedValue != "") {
+                                        treatmentHTML += `<li> ${translatedValue}</li>`;
+
+                                    } else if (key.includes("CustomParameter") && translatedValue != "") {
+                                        treatmentHTML += `<li> ${translatedValue}</li>`;
+
+                                    } else if (key.includes("Parameter") && translatedValue != "") {
+                                        treatmentHTML += `<li> ${translatedValue}</li>`;
+
+                                    } else if (key.includes("tensModes") && translatedValue != "" ) {
+                                        treatmentHTML += `<li> ${translatedValue}</li>`;
+
+                                    } else if (key.includes("Position") && translatedValue != "" ) {
+                                        treatmentHTML += `<li> ${translatedValue}</li>`;
+
+                                    } else if ((key.includes("bteGadget") || key.includes("bteMode")) && translatedValue != "" ) {
+                                        treatmentHTML += `<li> ${translatedValue}</li>`;
+
+                                    } else if (translatedValue != "") {
+                                        treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                                    }
+
+                                    
+                                }
                             }
-                        }
-                        }
-                        treatmentHTML += `</ul></div>`;
-                    });
-                    } else {
-                    treatmentHTML += '<p>No treatments found.</p>';
-                    }
-                    document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
-                } else {
-                    alert('This treatment plan has expired.');
-                }
 
-                // ... (rest of the function remains the same)
+                            treatmentHTML += `</ul></div>`;
+                        });
+
+                        document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
+                    } else {
+                        alert('This treatment plan has expired.');
+                    }
                 } catch (e) {
-                console.error("Failed to process data:", e);
-                alert('Error processing QR code data. Please try scanning again or contact support. Error: ' + e.message);
+                    console.error("Failed to decode or parse data:", e);
+                    alert('Invalid QR code data.');
                 }
             } else {
-                console.error("No short URL found in the hash");
-                alert('No treatment data found. Please try scanning the QR code again.');
+                alert('No treatment data found.');
             }
         }
 
