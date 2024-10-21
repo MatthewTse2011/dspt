@@ -131,6 +131,7 @@
                 throw error;
             }
         }
+
         async function displayPatientView() {
             const shortUrl = window.location.search.substr(1);
             console.log("Short URL:", shortUrl);
@@ -143,7 +144,19 @@
                 const decompressedData = LZString.decompressFromBase64(decodedData);
                 console.log("Decompressed data:", decompressedData);
                 
-                const data = JSON.parse(decompressedData);
+                if (!decompressedData) {
+                    throw new Error("Decompression failed or resulted in empty data");
+                }
+
+                let data;
+                try {
+                    data = JSON.parse(decompressedData);
+                } catch (jsonError) {
+                    console.error("JSON parse error:", jsonError);
+                    console.log("Data that failed to parse:", decompressedData);
+                    throw jsonError;
+                }
+                
                 console.log("Parsed data:", data);
                 
                 if (!data || !data.date) {
