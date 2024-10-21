@@ -132,20 +132,13 @@
         }
 
         async function displayPatientView() {
-            const shortCode = window.location.search.substr(1).split('#')[0];
-            const hash = window.location.hash.substr(1);
+            const shortUrl = window.location.search.substr(1);
+            console.log("Short URL:", shortUrl);
             
-            console.log("Short code:", shortCode);
-            console.log("Hash:", hash);
-            
-            if (hash) {
+            if (shortUrl) {
                 try {
-                const decodedData = LZString.decompressFromBase64(hash);
+                const decodedData = atob(shortUrl.replace(/-/g, '+').replace(/_/g, '/'));
                 console.log("Decoded data:", decodedData);
-                
-                if (!decodedData) {
-                    throw new Error("Decoded data is null or undefined");
-                }
                 
                 const data = JSON.parse(decodedData);
                 console.log("Parsed data:", data);
@@ -155,6 +148,7 @@
                 }
 
                 const today = getCurrentDate();
+
                 if (data.date === today) {
                     document.getElementById('treatmentDate').textContent = data.date;
                     document.getElementById('patientNameDisplay').textContent = data.patientName || 'N/A';
@@ -162,7 +156,7 @@
 
                     let treatmentHTML = '<h2>Treatments:</h2>';
                     if (Array.isArray(data.treatments)) {
-                    data.treatments.forEach(treatment => {
+                        data.treatments.forEach(treatment => {
                         const treatmentName = treatmentTranslations[treatment.name] || treatment.name;
                         treatmentHTML += `<div class="treatment">`;
                         treatmentHTML += `<h3>${treatmentName} (${treatment.name})</h3>`;
