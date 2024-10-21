@@ -167,7 +167,6 @@
         </div>
     </div>
 
-
     <form id="treatmentForm">
         <label for="patientName">Patient Name:</label>
         <input type="text" id="patientName" required><br><br>
@@ -676,7 +675,6 @@
         scanButton.addEventListener('click', startScanner);
         cancelScanButton.addEventListener('click', stopScanner);
 
-
         treatmentForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -724,8 +722,10 @@
         });
 
         function getShortUrl(longUrl) {
-            return btoa(longUrl).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+            const data = longUrl.split('#')[1];
+            return btoa(data).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
         }
     </script>
 </body>
 </html>
+
