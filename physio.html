@@ -693,48 +693,30 @@
             });
 
             const data = JSON.stringify({ patientName, therapistName, treatments, date });
-
-            // Compress the data before encoding it
             const compressedData = LZString.compressToBase64(data);
-
-            const baseUrl = "https://matthewtse2011.github.io/dspt/";
-            const longUrl = `${baseUrl}patient.html#${compressedData}`;
+            const longUrl = `#${compressedData}`;
 
             try {
-                console.log("Attempting to shorten URL:", longUrl);
-                const shortUrl = await getShortUrl(longUrl);
+                console.log("Original URL:", longUrl);
+                const shortUrl = getShortUrl(longUrl);
                 console.log("Short URL generated:", shortUrl);
-
-                const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortUrl)}&ecc=L`;
+                
+                const fullUrl = `https://matthewtse2011.github.io/dspt/patient.html?${shortUrl}`;
+                const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}&ecc=L`;
                 qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
                 
-                // Display the short URL
-                qrcodeElement.insertAdjacentHTML('afterend', `<p>Short URL: <a href="${shortUrl}" target="_blank">${shortUrl}</a></p>`);
+                qrcodeElement.insertAdjacentHTML('afterend', `<p>Short URL: <a href="${fullUrl}" target="_blank">${fullUrl}</a></p>`);
             } catch (error) {
                 console.error("Error generating QR code:", error);
                 alert("Failed to generate QR code. Please try again. Error: " + error.message);
             }
         });
 
-        async function getShortUrl(longUrl) {
-            const apiUrl = 'https://cleanuri.com/api/v1/shorten';
-            try {
-                const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `url=${encodeURIComponent(longUrl)}`
-                });
-                if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                return data.result_url;
-            } catch (error) {
-                console.error("Error generating short URL:", error);
-                throw error;
-            }
+        function getShortUrl(longUrl) {
+            const timestamp = Date.now();
+            const randomNum = Math.floor(Math.random() * 10000);
+            const shortCode = encodeBase62(timestamp) + encodeBase62(randomNum);
+            return `${shortCode}#${longUrl.split('#')[1]}`;
         }
     </script>
 </body>
