@@ -112,7 +112,6 @@
                 'leg': '腳'
         };
 
-
         async function expandShortUrl(shortUrl) {
             try {
                 console.log("Attempting to expand URL:", shortUrl);
@@ -140,7 +139,7 @@
                 const decodedData = atob(shortUrl.replace(/-/g, '+').replace(/_/g, '/'));
                 console.log("Decoded data:", decodedData);
                 
-                const data = JSON.parse(decodedData);
+                const data = JSON.parse(LZString.decompressFromBase64(decodedData));
                 console.log("Parsed data:", data);
                 
                 if (!data || !data.date) {
@@ -148,7 +147,6 @@
                 }
 
                 const today = getCurrentDate();
-
                 if (data.date === today) {
                     document.getElementById('treatmentDate').textContent = data.date;
                     document.getElementById('patientNameDisplay').textContent = data.patientName || 'N/A';
@@ -156,7 +154,7 @@
 
                     let treatmentHTML = '<h2>Treatments:</h2>';
                     if (Array.isArray(data.treatments)) {
-                        data.treatments.forEach(treatment => {
+                    data.treatments.forEach(treatment => {
                         const treatmentName = treatmentTranslations[treatment.name] || treatment.name;
                         treatmentHTML += `<div class="treatment">`;
                         treatmentHTML += `<h3>${treatmentName} (${treatment.name})</h3>`;
@@ -211,8 +209,8 @@
             }
         }
 
-
         window.onload = displayPatientView;
     </script>
 </body>
 </html>
+
