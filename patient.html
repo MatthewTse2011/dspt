@@ -118,11 +118,8 @@
                 console.log("Attempting to expand URL:", shortUrl);
                 const response = await fetch(shortUrl, { 
                 redirect: 'follow',
-                mode: 'cors'  // This allows for cross-origin requests
+                mode: 'no-cors'  // This allows for cross-origin requests without CORS headers
                 });
-                if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-                }
                 console.log("Expanded URL:", response.url);
                 return response.url; // This will be the expanded URL
             } catch (error) {
