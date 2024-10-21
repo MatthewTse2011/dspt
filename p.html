@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Treatment Information</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto;
+            padding: 20px; 
+        }
+        h2, h3 { 
+            color: #333; 
+        }
+        ul { 
+            padding-left: 20px; 
+        }
+        .treatment {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Patient Treatment Information</h1>
+    <p>Date(日期): <span id="treatmentDate"></span></p>
+    <p>Patient Name(病人姓名): <span id="patientNameDisplay"></span></p>
+    <p>Therapist Code/Name(治療師編號/姓名): <span id="therapistNameDisplay"></span></p>
+    <div id="treatmentDetails"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+
+    <script>
+        
+        function getCurrentDate() {
+            const options = {
+                timeZone: 'Asia/Hong_Kong',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            };
+            const formatter = new Intl.DateTimeFormat('en-HK', options);
+            const parts = formatter.formatToParts(new Date());
+            const year = parts.find(part => part.type === 'year').value;
+            const month = parts.find(part => part.type === 'month').value;
+            const day = parts.find(part => part.type === 'day').value;
+            return `${year}-${month}-${day}`;
+        }
+
+        const treatmentTranslations = {
+                'left': '左',
+                'right': '右',
+                'EMS': '電機',
+                    'emsMode': 'Mode',
+                    'emsCustomRegion': '自定義區域',
+                    //'emsRegion': '區域', 
+                    //'emsSubRegion': '子區域',
+                'Ultrasound': '超聲波', 
+                    'usRegion': '區域', 
+                    'usSubRegion': '子區域',
+                    'usIntensity': '強度 (w/cm2)',
+                    'usDuration': '時間 (分鐘)',
+                    'usPulseMode': 'Pulse Mode',
+                    'CustomRegion': '自定義區域',
+                    'pulseMode': '脈衝模式',
+                    'handfree': '免提',
+                    'manual': '人手',
+                'Hotpack': '熱敷',
+                'Icepack': '冰敷',
+                'MTP': '磁療',
+                'Hotmagner': '熱磁機',
+                'IFT': '干擾波',
+                'Wax': '蠟療',
+                    'left hand': '左手',
+                    'right hand': '右手',
+                'INT': '拉頸',
+                    'supine': '仰臥',
+                    'sitting': '坐',
+                'IPT': '拉腰',
+                    'supine+chair': '仰臥+小櫈',
+                    'supine+pillow': '仰臥+枕頭',
+                    'prone': '俯伏',
+                'ILT': '拉腳',
+                    'left leg': '左腳',
+                    'right leg': '右腳',
+                'Whirlpool': '水療',
+                'region': '區域',
+                'subregion': '子區域',
+                'duration': '持續時間',
+                'mode': '模式',
+                'quadriceps': '四頭肌',
+                'vmo': '內側斜肌(VMO)',
+                'face': '面',
+                'calf': '小腿',
+                'shoulder': '肩',
+                'waist': '腰部',
+                'neck': '頸部',
+                'back': '腰部',
+                'elbow': '手肘',
+                'wrist': '手腕',
+                'hand': '手',
+                'hip': '臀',
+                'knee': '膝蓋',
+                'ankle': '腳踝',
+                'foot': '腳',
+                'arm': '手臂',
+                'forearm': '前臂',
+                'leg': '腳'
+        };
+
+
+        async function expandShortUrl(shortUrl) {
+            try {
+                console.log("Attempting to expand URL:", shortUrl);
+                const response = await fetch(shortUrl, { 
+                redirect: 'follow',
+                mode: 'cors'  // Changed from 'no-cors' to 'cors'
+                });
+                if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                console.log("Expanded URL:", response.url);
+                return response.url; // This will be the expanded URL
+            } catch (error) {
+                console.error("Error expanding short URL:", error);
+                throw error;
+            }
+        }
+
+        async function displayPatientView() {
+            const shortUrl = window.location.search.substr(1);
+            console.log("Short URL:", shortUrl);
+            
+            if (shortUrl) {
+                try {
+                const decodedData = atob(shortUrl.replace(/-/g, '+').replace(/_/g, '/'));
+                console.log("Decoded data:", decodedData);
+                
+                const data = JSON.parse(LZString.decompressFromBase64(decodedData));
+                console.log("Parsed data:", data);
+                
+                if (!data || !data.date) {
+                    throw new Error("Data object is invalid or missing date property");
+                }
+
+                const today = getCurrentDate();
+                if (data.date === today) {
+                    document.getElementById('treatmentDate').textContent = data.date;
+                    document.getElementById('patientNameDisplay').textContent = data.patientName || 'N/A';
+                    document.getElementById('therapistNameDisplay').textContent = data.therapistName || 'N/A';
+
+                    let treatmentHTML = '<h2>Treatments:</h2>';
+                    if (Array.isArray(data.treatments)) {
+                    data.treatments.forEach(treatment => {
+                        const treatmentName = treatmentTranslations[treatment.name] || treatment.name;
+                        treatmentHTML += `<div class="treatment">`;
+                        treatmentHTML += `<h3>${treatmentName} (${treatment.name})</h3>`;
+                        treatmentHTML += `<ul>`;
+                        for (const [key, value] of Object.entries(treatment)) {
+                        if (key !== 'name') {
+                            const translatedKey = treatmentTranslations[key] || key;
+                            const translatedValue = treatmentTranslations[value] || value;
+                            if (key.includes("CustomRegion") && translatedValue != "") {
+                            treatmentHTML += `<li>位置: ${translatedValue}</li>`;
+                            } else if (key.includes("SubRegion") && translatedValue != "") {
+                            treatmentHTML += `${translatedValue}</li>`;
+                            } else if (key.includes("Region") && translatedValue != "") {
+                            treatmentHTML += `<li>位置: ${translatedValue}`;
+                            } else if (key.includes("Duration") && translatedValue != "") {
+                            treatmentHTML += `<li>時間 (分鐘): ${translatedValue}</li>`;
+                            } else if (key.includes("PulseMode") && translatedValue == "") {
+                            treatmentHTML += ``;
+                            } else if (key.includes("usDeliver") && translatedValue != "") {
+                            treatmentHTML += `<li> ${translatedValue}</li>`;
+                            } else if (key.includes("CustomParameter") && translatedValue != "") {
+                            treatmentHTML += `<li> ${translatedValue}</li>`;
+                            } else if (key.includes("Parameter") && translatedValue != "") {
+                            treatmentHTML += `<li> ${translatedValue}</li>`;
+                            } else if (key.includes("tensModes") && translatedValue != "") {
+                            treatmentHTML += `<li> ${translatedValue}</li>`;
+                            } else if (key.includes("Position") && translatedValue != "") {
+                            treatmentHTML += `<li> ${translatedValue}</li>`;
+                            } else if ((key.includes("bteGadget") || key.includes("bteMode")) && translatedValue != "") {
+                            treatmentHTML += `<li> ${translatedValue}</li>`;
+                            } else if (translatedValue != "") {
+                            treatmentHTML += `<li>${translatedKey}: ${translatedValue}</li>`;
+                            }
+                        }
+                        }
+                        treatmentHTML += `</ul></div>`;
+                    });
+                    } else {
+                    treatmentHTML += '<p>No treatments found.</p>';
+                    }
+                    document.getElementById('treatmentDetails').innerHTML = treatmentHTML;
+                } else {
+                    alert('This treatment plan has expired.');
+                }
+                } catch (e) {
+                console.error("Failed to process data:", e);
+                alert('Error processing QR code data. Please try scanning again or contact support. Error: ' + e.message);
+                }
+            } else {
+                console.error("No data found in the URL");
+                alert('No treatment data found. Please try scanning the QR code again.');
+            }
+        }
+
+
+        window.onload = displayPatientView;
+    </script>
+</body>
+</html>
