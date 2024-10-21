@@ -721,7 +721,7 @@
                 qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
                 
                 // Display the short URL below the QR code
-                qrcodeElement.insertAdjacentHTML('afterend', `<p>Short URL: <a href="${fullUrl}" target="_blank">${fullUrl}</a></p>`);
+                //qrcodeElement.insertAdjacentHTML('afterend', `<p>Short URL: <a href="${fullUrl}" target="_blank">${fullUrl}</a></p>`);
             } catch (error) {
                 console.error("Error generating QR code:", error);
                 alert("Failed to generate QR code. Please try again. Error: " + error.message);
