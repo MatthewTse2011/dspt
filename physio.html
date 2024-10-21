@@ -704,7 +704,10 @@
             });
 
             const data = JSON.stringify({ patientName, therapistName, treatments, date });
+            console.log("Data before compression:", data);
+
             const compressedData = LZString.compressToBase64(data);
+            console.log("Compressed data:", compressedData);
 
             try {
                 const shortUrl = getShortUrl(compressedData);
@@ -721,9 +724,8 @@
             }
         });
 
-        function getShortUrl(longUrl) {
-            const data = longUrl.split('#')[1];
-            return btoa(data).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+        function getShortUrl(compressedData) {
+            return btoa(compressedData).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
         }
     </script>
 </body>
