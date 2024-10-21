@@ -707,21 +707,16 @@
 
             const data = JSON.stringify({ patientName, therapistName, treatments, date });
             const compressedData = LZString.compressToBase64(data);
-            const longUrl = `#${compressedData}`;
 
             try {
-                console.log("Original URL:", longUrl);
-                const shortUrl = getShortUrl(longUrl);
+                const shortUrl = getShortUrl(compressedData);
                 console.log("Short URL generated:", shortUrl);
                 
-                const fullUrl = `https://matthewtse2011.github.io/dspt/patient.html?${shortUrl}`;
+                // Use a shorter base URL
+                const fullUrl = `https://matthewtse2011.github.io/dspt/p?${shortUrl}`;
                 
-                // Use the full URL for the QR code
                 const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}&ecc=L`;
                 qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
-                
-                // Display the short URL below the QR code
-                //qrcodeElement.insertAdjacentHTML('afterend', `<p>Short URL: <a href="${fullUrl}" target="_blank">${fullUrl}</a></p>`);
             } catch (error) {
                 console.error("Error generating QR code:", error);
                 alert("Failed to generate QR code. Please try again. Error: " + error.message);
@@ -729,10 +724,8 @@
         });
 
         function getShortUrl(longUrl) {
-            const timestamp = Date.now();
-            const randomNum = Math.floor(Math.random() * 10000);
-            const shortCode = encodeBase62(timestamp) + encodeBase62(randomNum);
-            return `${shortCode}#${longUrl.split('#')[1]}`;
+            const data = longUrl.split('#')[1];
+            return btoa(data).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
         }
     </script>
 </body>
