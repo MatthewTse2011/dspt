@@ -715,9 +715,12 @@
                 console.log("Short URL generated:", shortUrl);
                 
                 const fullUrl = `https://matthewtse2011.github.io/dspt/patient.html?${shortUrl}`;
+                
+                // Use the full URL for the QR code
                 const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}&ecc=L`;
                 qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
                 
+                // Display the short URL below the QR code
                 qrcodeElement.insertAdjacentHTML('afterend', `<p>Short URL: <a href="${fullUrl}" target="_blank">${fullUrl}</a></p>`);
             } catch (error) {
                 console.error("Error generating QR code:", error);
