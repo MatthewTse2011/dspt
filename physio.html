@@ -699,6 +699,7 @@
             const longUrl = `${baseUrl}patient.html#${compressedData}`;
 
             try {
+                console.log("Attempting to shorten URL:", longUrl);
                 const shortUrl = await getShortUrl(longUrl);
                 console.log("Short URL generated:", shortUrl);
                 
@@ -713,30 +714,33 @@
             }
         });
 
-        function getShortUrl(longUrl) {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                
-                window[callbackName] = function(data) {
-                delete window[callbackName];
-                document.body.removeChild(script);
-                if (data.shorturl) {
-                    resolve(data.shorturl);
-                } else {
-                    reject(new Error('Failed to get short URL'));
+        async function getShortUrl(longUrl) {
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            const apiUrl = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
+            
+            try {
+                const response = await fetch(proxyUrl + apiUrl, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-                };
+                });
 
-                script.src = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}&callback=${callbackName}`;
-                script.onerror = () => {
-                delete window[callbackName];
-                document.body.removeChild(script);
-                reject(new Error('Script load failed'));
-                };
+                if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
                 
-                document.body.appendChild(script);
-            });
+                if (data.shorturl) {
+                return data.shorturl;
+                } else {
+                throw new Error('Failed to get short URL');
+                }
+            } catch (error) {
+                console.error("Error generating short URL:", error);
+                throw error;
+            }
         }
     </script>
 </body>
