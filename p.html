@@ -130,7 +130,6 @@
                 throw error;
             }
         }
-
         async function displayPatientView() {
             const shortUrl = window.location.search.substr(1);
             console.log("Short URL:", shortUrl);
@@ -140,7 +139,10 @@
                 const decodedData = atob(shortUrl.replace(/-/g, '+').replace(/_/g, '/'));
                 console.log("Decoded data:", decodedData);
                 
-                const data = JSON.parse(decodedData);
+                const decompressedData = LZString.decompressFromBase64(decodedData);
+                console.log("Decompressed data:", decompressedData);
+                
+                const data = JSON.parse(decompressedData);
                 console.log("Parsed data:", data);
                 
                 if (!data || !data.date) {
