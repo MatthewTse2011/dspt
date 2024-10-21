@@ -518,6 +518,19 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script>
+        const base62 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        function encodeBase62(number) {
+            if (number === 0) {
+                return base62[0];
+            }
+            let encoded = '';
+            while (number > 0) {
+                encoded = base62[number % 62] + encoded;
+                number = Math.floor(number / 62);
+            }
+            return encoded;
+        }
         const currentDateElement = document.getElementById('currentDate');
         const treatmentForm = document.getElementById('treatmentForm');
         const qrcodeElement = document.getElementById('qrcode');
