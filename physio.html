@@ -703,19 +703,30 @@
                 const shortUrl = await getShortUrl(longUrl);
                 const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortUrl)}&ecc=L`;
                 qrcodeElement.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
+                console.log("Short URL generated:", shortUrl);
+            } catch (error) {
+                console.error("Error generating QR code:", error);
+                alert("Failed to generate QR code. Please try again. Error: " + error.message);
+            }
+        });
+
+        async function getShortUrl(longUrl) {
+            const apiUrl = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.shorturl) {
+                return data.shorturl;
+                } else {
+                throw new Error('Failed to get short URL');
+                }
             } catch (error) {
                 console.error("Error generating short URL:", error);
-                alert("Failed to generate QR code. Please try again.");
+                throw error;
             }
-            });
-
-            async function getShortUrl(longUrl) {
-            const apiUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.text();
         }
     </script>
 </body>
