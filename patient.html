@@ -115,10 +115,15 @@
 
         async function expandShortUrl(shortUrl) {
             try {
-                const response = await fetch(shortUrl);
+                console.log("Attempting to expand URL:", shortUrl);
+                const response = await fetch(shortUrl, { 
+                redirect: 'follow',
+                mode: 'cors'  // This allows for cross-origin requests
+                });
                 if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                console.log("Expanded URL:", response.url);
                 return response.url; // This will be the expanded URL
             } catch (error) {
                 console.error("Error expanding short URL:", error);
@@ -128,17 +133,24 @@
 
         async function displayPatientView() {
             const shortUrl = window.location.hash.substr(1);
+            console.log("Raw hash value:", window.location.hash);
+            console.log("Extracted short URL:", shortUrl);
+            
             if (shortUrl) {
                 try {
-                console.log("Short URL:", shortUrl);
-                const longUrl = await expandShortUrl(shortUrl);
+                // Ensure the shortUrl starts with 'https://' if it doesn't already
+                const fullShortUrl = shortUrl.startsWith('http') ? shortUrl : `https://${shortUrl}`;
+                console.log("Full short URL to be expanded:", fullShortUrl);
+                
+                const longUrl = await expandShortUrl(fullShortUrl);
                 console.log("Expanded URL:", longUrl);
+
                 const hash = new URL(longUrl).hash.substr(1);
                 console.log("Hash from long URL:", hash);
+
                 const decodedData = LZString.decompressFromBase64(hash);
                 console.log("Decoded data:", decodedData);
                 
-                // Add a check to ensure decodedData is not null or undefined
                 if (!decodedData) {
                     throw new Error("Decoded data is null or undefined");
                 }
@@ -146,7 +158,6 @@
                 const data = JSON.parse(decodedData);
                 console.log("Parsed data:", data);
                 
-                // Add a check to ensure data and data.date exist
                 if (!data || !data.date) {
                     throw new Error("Data object is invalid or missing date property");
                 }
@@ -205,13 +216,14 @@
                     alert('This treatment plan has expired.');
                 }
                 } catch (e) {
-                console.error("Failed to decode or parse data:", e);
-                alert('Invalid QR code data. Error: ' + e.message);
+                console.error("Failed to process data:", e);
+                alert('Error processing QR code data. Please try scanning again or contact support. Error: ' + e.message);
                 }
             } else {
-                alert('No treatment data found.');
+                console.error("No short URL found in the hash");
+                alert('No treatment data found. Please try scanning the QR code again.');
             }
-            }
+        }
 
         window.onload = displayPatientView;
     </script>
